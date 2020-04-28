@@ -34,6 +34,7 @@ stages:
         - docker/*
       when: always
     - when: manual
+      allow_failure: true
 
 .build: &build
   stage: build
@@ -477,6 +478,7 @@ coverity:
     - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
       when: always
     - when: manual
+      allow_failure: true
 
 pages:
   stage: deploy
