@@ -28,7 +28,12 @@ stages:
         --build-arg REGISTRY=$REGISTRY
         -t $CI_REGISTRY_IMAGE/$NAME:$TAG docker/$NAME/$TAG
     - docker push $CI_REGISTRY_IMAGE/$NAME:$TAG
-  when: manual
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
+      changes:
+        - docker/*
+      when: always
+    - when: manual
 
 .build: &build
   stage: build
