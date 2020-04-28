@@ -28,7 +28,13 @@ stages:
         --build-arg REGISTRY=$REGISTRY
         -t $CI_REGISTRY_IMAGE/$NAME:$TAG docker/$NAME/$TAG
     - docker push $CI_REGISTRY_IMAGE/$NAME:$TAG
-  when: manual
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
+      changes:
+        - docker/*
+      when: always
+    - when: manual
+      allow_failure: true
 
 .build: &build
   stage: build
@@ -468,7 +474,11 @@ coverity:
         --form version="$(git describe --abbrev=0 --tags | sed s/^v//)"
         --form description="$CI_COMMIT_REF_NAME"
         https://scan.coverity.com/builds?project=$COVERITY_PROJECT
-  when: manual
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
+      when: always
+    - when: manual
+      allow_failure: true
 
 pages:
   stage: deploy
