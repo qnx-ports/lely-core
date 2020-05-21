@@ -487,7 +487,10 @@ coverity:
         --form version="$(git describe --abbrev=0 --tags | sed s/^v//)"
         --form description="$CI_COMMIT_REF_NAME"
         https://scan.coverity.com/builds?project=$COVERITY_PROJECT
-  when: manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+    - when: manual
 
 docker:sonarcloud:
   <<: *docker
@@ -533,7 +536,10 @@ sonarcloud:
     paths:
       - sonar-rules.html
     expire_in: 1 week
-  when: manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+    - when: manual
 
 pages:
   stage: deploy
