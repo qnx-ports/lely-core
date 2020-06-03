@@ -1226,15 +1226,16 @@ io_can_chan_impl_read_task_func(struct ev_task *task)
 #if !LELY_NO_THREADS
 		pthread_mutex_unlock(&impl->c_mtx);
 #endif
-		if (!post_read)
+		if (!post_read) {
 			// If the receive queue is empty, start reading more CAN
 			// frames, unless we're already waiting for one.
 			post_rxbuf = !impl->rxbuf_posted
 					&& !(impl->events & IO_EVENT_IN)
 					&& impl->fd != -1;
+			if (post_rxbuf)
+				impl->rxbuf_posted = 1;
+		}
 	}
-	if (post_rxbuf)
-		impl->rxbuf_posted = 1;
 	impl->read_posted = post_read;
 #if !LELY_NO_THREADS
 	pthread_mutex_unlock(&impl->mtx);
