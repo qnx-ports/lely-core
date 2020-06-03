@@ -183,6 +183,7 @@ io_open_can(const char *path)
 		goto error_alloc_handle;
 	}
 
+	// cppcheck-suppress AssignmentIntegerToAddress
 	handle->fd = s;
 #if !defined(LELY_NO_CANFD) && defined(CANFD_MTU)
 	((struct can *)handle)->canfd = canfd;
@@ -783,6 +784,7 @@ can_err(struct can *can, const struct can_frame *frame)
 	can->state = state;
 	can->error = error;
 
+	// cppcheck-suppress knownConditionTrueFalse
 	if (state != CAN_STATE_ACTIVE || error) {
 		errno = EIO;
 		return -1;
@@ -833,7 +835,7 @@ can_setattr(int fd, __u32 seq, __u32 pid, int ifi_index, unsigned int ifi_flags,
 
 	const char *kind = "can";
 	struct rtattr *info_kind = (struct rtattr *)buf;
-	*info_kind = (struct rtattr){ .rta_len = RTA_LENGTH(strlen(kind)),
+	*info_kind = (struct rtattr){ .rta_len = RTA_LENGTH(3),
 		.rta_type = IFLA_INFO_KIND };
 	memcpy(RTA_DATA(info_kind), kind, strlen(kind));
 
