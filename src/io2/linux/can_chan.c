@@ -1243,6 +1243,7 @@ io_can_chan_impl_read_task_func(struct ev_task *task)
 
 	ev_task_queue_post(&queue);
 
+	// cppcheck-suppress knownConditionTrueFalse
 	if (post_rxbuf)
 		ev_exec_post(impl->rxbuf_task.exec, &impl->rxbuf_task);
 
