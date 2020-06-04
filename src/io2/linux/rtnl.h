@@ -169,7 +169,6 @@ rtnl_recv(const struct rtnl_handle *rth, void **pbuf)
 
 		do {
 			errno = errsv;
-			// cppcheck-suppress nullPointer
 			result = recv(rth->fd, NULL, 0, MSG_PEEK | MSG_TRUNC);
 		} while (result == -1 && errno == EINTR);
 		if (result <= 0)

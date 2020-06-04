@@ -505,7 +505,7 @@ cppcheck-win64:
   tags:
     - docker
     - linux
-  image: $REGISTRY/cppcheck-unix64:bullseye
+  image: $REGISTRY/cppcheck-win64:bullseye
   dependencies: []
   script:
     - autoreconf -i
