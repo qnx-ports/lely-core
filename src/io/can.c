@@ -183,7 +183,6 @@ io_open_can(const char *path)
 		goto error_alloc_handle;
 	}
 
-	// cppcheck-suppress AssignmentIntegerToAddress
 	handle->fd = s;
 #if !defined(LELY_NO_CANFD) && defined(CANFD_MTU)
 	((struct can *)handle)->canfd = canfd;
@@ -784,7 +783,6 @@ can_err(struct can *can, const struct can_frame *frame)
 	can->state = state;
 	can->error = error;
 
-	// cppcheck-suppress knownConditionTrueFalse
 	if (state != CAN_STATE_ACTIVE || error) {
 		errno = EIO;
 		return -1;
