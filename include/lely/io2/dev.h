@@ -79,6 +79,7 @@ LELY_IO_DEV_INLINE size_t io_dev_abort(io_dev_t *dev, struct ev_task *task);
 inline io_ctx_t *
 io_dev_get_ctx(const io_dev_t *dev)
 {
+	// cppcheck-suppress ctunullpointer
 	return (*dev)->get_ctx(dev);
 }
 
