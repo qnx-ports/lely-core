@@ -831,9 +831,9 @@ can_setattr(int fd, __u32 seq, __u32 pid, int ifi_index, unsigned int ifi_flags,
 	char buf[1024];
 	int len = 0;
 
-	const char kind[] = "can";
+	const char* kind = "can";
 	struct rtattr *info_kind = (struct rtattr *)buf;
-	*info_kind = (struct rtattr){ .rta_len = RTA_LENGTH(sizeof(kind)),
+	*info_kind = (struct rtattr){ .rta_len = RTA_LENGTH(strlen(kind)),
 		.rta_type = IFLA_INFO_KIND };
 	memcpy(RTA_DATA(info_kind), kind, strlen(kind));
 
