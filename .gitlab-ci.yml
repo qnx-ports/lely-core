@@ -522,6 +522,7 @@ cppcheck-win64:
         --quiet
         --std=c11 --std=c++11
         --suppress=va_list_usedBeforeStarted
+        --suppress=nullPointerRedundantCheck
         --suppressions-list=suppressions.txt
         include src
   artifacts:
