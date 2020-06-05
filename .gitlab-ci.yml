@@ -482,7 +482,7 @@ cppcheck-unix64:
         --enable=warning,style,performance,portability,missingInclude
         --error-exitcode=1
         --force
-        -I/usr/include -I. -I./include
+        -I. -I./include
         --inline-suppr
         --platform=unix64
         --std=c11 --std=c++11
