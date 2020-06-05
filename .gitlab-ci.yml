@@ -487,6 +487,7 @@ cppcheck-unix64:
         --platform=unix64
         --std=c11 --std=c++11
         --suppressions-list=suppressions.txt
+        -isrc/io2/win32
         include src
   artifacts:
     paths:
@@ -522,6 +523,7 @@ cppcheck-win64:
         --library=std --library=windows
         --suppress=va_list_usedBeforeStarted
         --suppressions-list=suppressions.txt
+        -isrc/io2/linux
         include src
   artifacts:
     paths:
