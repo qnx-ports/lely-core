@@ -64,6 +64,7 @@ bin += unit-test-co
 
 src_co_tests =
 src_co_tests += co/test-crc.cpp
+src_co_tests += co/test-dev.cpp
 src_co_tests += co/test-type.cpp
 
 unit_test_co_SOURCES = tests-shared-main.cpp $(src_co_tests)
