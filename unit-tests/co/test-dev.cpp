@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include <lely/co/dev.h>
+#include <lely/co/obj.h>
 #include <lely/util/errnum.h>
 
 TEST_GROUP(CO_DevInit){};
@@ -42,15 +43,51 @@ TEST(CO_DevInit, CODevInit) {
   CHECK(dev != nullptr);
   POINTERS_EQUAL(dev, __co_dev_init(dev, 0x01));
 
+  CHECK_EQUAL(0, co_dev_get_netid(dev));
+  CHECK_EQUAL(0x01, co_dev_get_id(dev));
+
+  CHECK_EQUAL(0, co_dev_get_idx(dev, 0, nullptr));
+
+  POINTERS_EQUAL(nullptr, co_dev_get_name(dev));
+
+  POINTERS_EQUAL(nullptr, co_dev_get_vendor_name(dev));
+  CHECK_EQUAL(0, co_dev_get_vendor_id(dev));
+  POINTERS_EQUAL(nullptr, co_dev_get_product_name(dev));
+  CHECK_EQUAL(0, co_dev_get_product_code(dev));
+  CHECK_EQUAL(0, co_dev_get_revision(dev));
+  POINTERS_EQUAL(nullptr, co_dev_get_order_code(dev));
+
+  CHECK_EQUAL(0, co_dev_get_baud(dev));
+  CHECK_EQUAL(0, co_dev_get_rate(dev));
+
+  CHECK_EQUAL(0, co_dev_get_lss(dev));
+
+  CHECK_EQUAL(0, co_dev_get_dummy(dev));
+
   __co_dev_fini(dev);
   __co_dev_free(dev);
 }
 
-TEST(CO_DevInit, CODevInit_MaxId) {
+TEST(CO_DevInit, CODevInit_UnconfiguredId) {
   auto* const dev = static_cast<co_dev_t*>(__co_dev_alloc());
 
   CHECK(dev != nullptr);
   POINTERS_EQUAL(dev, __co_dev_init(dev, 0xff));
+
+  co_obj_t* obj1 = co_obj_create(0x0000);
+  co_obj_t* obj2 = co_obj_create(0x0001);
+  co_obj_t* obj3 = co_obj_create(0xffff);
+  CHECK(obj1 != nullptr);
+  CHECK(obj2 != nullptr);
+  CHECK(obj3 != nullptr);
+  co_dev_insert_obj(dev, obj1);
+  co_dev_insert_obj(dev, obj2);
+  co_dev_insert_obj(dev, obj3);
+
+  CHECK_EQUAL(0, co_dev_set_name(dev, "name"));
+  CHECK_EQUAL(0, co_dev_set_vendor_name(dev, "vendor"));
+  CHECK_EQUAL(0, co_dev_set_product_name(dev, "product name"));
+  CHECK_EQUAL(0, co_dev_set_order_code(dev, "order code"));
 
   __co_dev_fini(dev);
   __co_dev_free(dev);
@@ -97,4 +134,6 @@ TEST_GROUP(CO_Dev) {
     dev = co_dev_create(0x01);
     CHECK(dev != nullptr);
   }
+
+  TEST_TEARDOWN() { co_dev_destroy(dev); }
 };
