@@ -137,3 +137,76 @@ TEST_GROUP(CO_Dev) {
 
   TEST_TEARDOWN() { co_dev_destroy(dev); }
 };
+
+TEST(CO_Dev, CoDevSetNetId) {
+  const auto ret = co_dev_set_netid(dev, 0x3d);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(0x3d, co_dev_get_netid(dev));
+}
+
+TEST(CO_Dev, CoDevSetNetId_Unconfigured) {
+  const auto ret = co_dev_set_netid(dev, 0xff);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(0xff, co_dev_get_netid(dev));
+}
+
+TEST(CO_Dev, CoDevSetNetId_InvalidId) {
+  const auto ret1 = co_dev_set_netid(dev, CO_NUM_NETWORKS + 1);
+
+  CHECK_EQUAL(-1, ret1);
+  CHECK_EQUAL(0, co_dev_get_netid(dev));
+
+  const auto ret2 = co_dev_set_netid(dev, 0xff - 1);
+
+  CHECK_EQUAL(-1, ret2);
+  CHECK_EQUAL(0, co_dev_get_netid(dev));
+}
+
+TEST(CO_Dev, CoDevSetId) {
+  const auto ret = co_dev_set_id(dev, 0x3d);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(0x3d, co_dev_get_id(dev));
+}
+
+TEST(CO_Dev, CoDevSetId_CheckObj) {
+  co_obj_t* obj1 = co_obj_create(0x0000);
+  co_obj_t* obj2 = co_obj_create(0x0001);
+  co_obj_t* obj3 = co_obj_create(0xffff);
+  CHECK(obj1 != nullptr);
+  CHECK(obj2 != nullptr);
+  CHECK(obj3 != nullptr);
+  co_dev_insert_obj(dev, obj1);
+  co_dev_insert_obj(dev, obj2);
+  co_dev_insert_obj(dev, obj3);
+
+  const auto ret = co_dev_set_id(dev, 0x3d);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(0x3d, co_dev_get_id(dev));
+  for(co_obj_t* obj = co_dev_first_obj(dev); obj != nullptr; obj = co_obj_next(obj)) {
+    // TODO: check if sub-object values are adjusted
+  }
+}
+
+
+TEST(CO_Dev, CoDevSetId_Unconfigured) {
+  const auto ret = co_dev_set_id(dev, 0xff);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(0xff, co_dev_get_id(dev));
+}
+
+TEST(CO_Dev, CoDevSetId_InvalidId) {
+  const auto ret1 = co_dev_set_id(dev, CO_NUM_NETWORKS + 1);
+
+  CHECK_EQUAL(-1, ret1);
+  CHECK_EQUAL(0x01, co_dev_get_id(dev));
+
+  const auto ret2 = co_dev_set_id(dev, 0xff - 1);
+
+  CHECK_EQUAL(-1, ret2);
+  CHECK_EQUAL(0x01, co_dev_get_id(dev));
+}
