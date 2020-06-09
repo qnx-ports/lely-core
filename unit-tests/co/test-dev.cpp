@@ -74,9 +74,9 @@ TEST(CO_DevInit, CODevInit_UnconfiguredId) {
   CHECK(dev != nullptr);
   POINTERS_EQUAL(dev, __co_dev_init(dev, 0xff));
 
-  co_obj_t* obj1 = co_obj_create(0x0000);
-  co_obj_t* obj2 = co_obj_create(0x0001);
-  co_obj_t* obj3 = co_obj_create(0xffff);
+  co_obj_t* const obj1 = co_obj_create(0x0000);
+  co_obj_t* const obj2 = co_obj_create(0x0001);
+  co_obj_t* const obj3 = co_obj_create(0xffff);
   CHECK(obj1 != nullptr);
   CHECK(obj2 != nullptr);
   CHECK(obj3 != nullptr);
@@ -172,31 +172,99 @@ TEST(CO_Dev, CoDevSetId) {
 }
 
 TEST(CO_Dev, CoDevSetId_CheckObj) {
-  co_obj_t* obj1 = co_obj_create(0x0000);
-  co_obj_t* obj2 = co_obj_create(0x0001);
-  co_obj_t* obj3 = co_obj_create(0xffff);
-  CHECK(obj1 != nullptr);
-  CHECK(obj2 != nullptr);
-  CHECK(obj3 != nullptr);
+  co_obj_t* const obj = co_obj_create(0x0000);
+  co_obj_t* const obj1 = co_obj_create(0x0001);
+  co_obj_t* const obj2 = co_obj_create(0x0002);
+  co_obj_t* const obj3 = co_obj_create(0x1234);
+  co_obj_t* const obj4 = co_obj_create(0xffff);
+  co_sub_t* const sub_min1 = co_sub_create(0x01, CO_DEFTYPE_INTEGER16);
+  co_sub_t* const sub_min2 = co_sub_create(0x02, CO_DEFTYPE_INTEGER16);
+  co_sub_t* const sub_max1 = co_sub_create(0x01, CO_DEFTYPE_INTEGER16);
+  co_sub_t* const sub_max2 = co_sub_create(0x02, CO_DEFTYPE_INTEGER16);
+  co_sub_t* const sub_def1 = co_sub_create(0x01, CO_DEFTYPE_INTEGER16);
+  co_sub_t* const sub_def2 = co_sub_create(0x02, CO_DEFTYPE_INTEGER16);
+  co_sub_t* const sub_val1 = co_sub_create(0x01, CO_DEFTYPE_INTEGER16);
+  co_sub_t* const sub_val2 = co_sub_create(0x02, CO_DEFTYPE_INTEGER16);
+
+  const co_integer16_t min_val1 = 0x0;
+  const co_integer16_t min_val2 = 0x0 + co_dev_get_id(dev);
+  CHECK_EQUAL(2, co_sub_set_min(sub_min1, &min_val1, 2));
+  CHECK_EQUAL(2, co_sub_set_min(sub_min2, &min_val2, 2));
+  co_sub_set_flags(sub_min2, CO_OBJ_FLAGS_MIN_NODEID);
+
+  const co_integer16_t max_val1 = 0x3f00;
+  const co_integer16_t max_val2 = 0x3f00 + co_dev_get_id(dev);
+  CHECK_EQUAL(2, co_sub_set_max(sub_max1, &max_val1, 2));
+  CHECK_EQUAL(2, co_sub_set_max(sub_max2, &max_val2, 2));
+  co_sub_set_flags(sub_max2, CO_OBJ_FLAGS_MAX_NODEID);
+
+  const co_integer16_t def_val1 = 0x1234;
+  const co_integer16_t def_val2 = 0x1234 + co_dev_get_id(dev);
+  CHECK_EQUAL(2, co_sub_set_def(sub_def1, &def_val1, 2));
+  CHECK_EQUAL(2, co_sub_set_def(sub_def2, &def_val2, 2));
+  co_sub_set_flags(sub_def2, CO_OBJ_FLAGS_DEF_NODEID);
+
+  co_sub_set_flags(sub_val2, CO_OBJ_FLAGS_VAL_NODEID);
+
+  co_obj_insert_sub(obj1, sub_min1);
+  co_obj_insert_sub(obj1, sub_min2);
+  co_obj_insert_sub(obj2, sub_max1);
+  co_obj_insert_sub(obj2, sub_max2);
+  co_obj_insert_sub(obj3, sub_def1);
+  co_obj_insert_sub(obj3, sub_def2);
+  co_obj_insert_sub(obj4, sub_val1);
+  co_obj_insert_sub(obj4, sub_val2);
+
+  co_dev_insert_obj(dev, obj);
   co_dev_insert_obj(dev, obj1);
   co_dev_insert_obj(dev, obj2);
   co_dev_insert_obj(dev, obj3);
+  co_dev_insert_obj(dev, obj4);
 
-  const auto ret = co_dev_set_id(dev, 0x3d);
+  const co_unsigned8_t new_id = 0x3d;
+
+  const auto ret = co_dev_set_id(dev, new_id);
 
   CHECK_EQUAL(0, ret);
-  CHECK_EQUAL(0x3d, co_dev_get_id(dev));
-  for(co_obj_t* obj = co_dev_first_obj(dev); obj != nullptr; obj = co_obj_next(obj)) {
-    // TODO: check if sub-object values are adjusted
-  }
-}
+  CHECK_EQUAL(new_id, co_dev_get_id(dev));
 
+  const co_obj_t* const out_obj = co_dev_first_obj(dev);
+
+  const co_obj_t* const out_obj_min = co_obj_next(out_obj);
+  CHECK_EQUAL(0x0, *static_cast<const co_integer16_t*>(
+                     co_sub_get_min(co_obj_first_sub(out_obj_min))));
+  CHECK_EQUAL(0x0 + new_id, *static_cast<const co_integer16_t*>(
+                              co_sub_get_min(co_obj_last_sub(out_obj_min))));
+
+  const co_obj_t* const out_obj_max = co_obj_next(out_obj_min);
+  CHECK_EQUAL(0x3f00, *static_cast<const co_integer16_t*>(
+                     co_sub_get_max(co_obj_first_sub(out_obj_max))));
+  CHECK_EQUAL(0x3f00 + new_id, *static_cast<const co_integer16_t*>(
+                              co_sub_get_max(co_obj_last_sub(out_obj_max))));
+
+  const co_obj_t* const out_obj_def = co_obj_next(out_obj_max);
+  CHECK_EQUAL(0x1234, *static_cast<const co_integer16_t*>(
+                     co_sub_get_def(co_obj_first_sub(out_obj_def))));
+  CHECK_EQUAL(0x1234 + new_id, *static_cast<const co_integer16_t*>(
+                              co_sub_get_def(co_obj_last_sub(out_obj_def))));
+
+  const co_obj_t* const out_obj_val = co_obj_next(out_obj_def);
+  CHECK_EQUAL(0x0, *static_cast<const co_integer16_t*>(
+                     co_sub_get_val(co_obj_first_sub(out_obj_val))));
+}
 
 TEST(CO_Dev, CoDevSetId_Unconfigured) {
   const auto ret = co_dev_set_id(dev, 0xff);
 
   CHECK_EQUAL(0, ret);
   CHECK_EQUAL(0xff, co_dev_get_id(dev));
+}
+
+TEST(CO_Dev, CoDevSetId_ZeroId) {
+  const auto ret = co_dev_set_id(dev, 0x00);
+
+  CHECK_EQUAL(-1, ret);
+  CHECK_EQUAL(0x01, co_dev_get_id(dev));
 }
 
 TEST(CO_Dev, CoDevSetId_InvalidId) {
