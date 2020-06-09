@@ -107,10 +107,10 @@ TEST(CO_DevInit, CODevInit_InvalidId) {
   CHECK(dev != nullptr);
 
   POINTERS_EQUAL(nullptr, __co_dev_init(dev, CO_NUM_NODES + 1));
-  CHECK_EQUAL(EINVAL, get_errc());
+  CHECK_EQUAL(ERRNUM_INVAL, get_errnum());
 
   POINTERS_EQUAL(nullptr, __co_dev_init(dev, 0xff - 1));
-  CHECK_EQUAL(EINVAL, get_errc());
+  CHECK_EQUAL(ERRNUM_INVAL, get_errnum());
 
   __co_dev_free(dev);
 }
