@@ -288,3 +288,122 @@ TEST(CO_Dev, CoDevSetId_InvalidId) {
   CHECK_EQUAL(-1, ret2);
   CHECK_EQUAL(0x01, co_dev_get_id(dev));
 }
+
+TEST(CO_Dev, CoDevGetIdx_Empty) {
+  co_unsigned16_t out_idx = 0x0000;
+  const auto ret = co_dev_get_idx(dev, 1, &out_idx);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(0x0000, out_idx);
+}
+
+TEST(CO_Dev, CoDevGetIdx_EmptyNull) {
+  const auto ret = co_dev_get_idx(dev, 0, nullptr);
+
+  CHECK_EQUAL(0, ret);
+}
+
+TEST(CO_Dev, CoDevGetIdx_OneObjCheckNumber) {
+  co_obj_t* const obj = co_obj_create(0x0000);
+  co_dev_insert_obj(dev, obj);
+
+  const auto ret = co_dev_get_idx(dev, 0xffff, nullptr);
+
+  CHECK_EQUAL(1, ret);
+}
+
+TEST(CO_Dev, CoDevGetIdx_OneObjCheckIdx) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_dev_insert_obj(dev, obj);
+
+  co_unsigned16_t out_idx = 0x0000;
+  const auto ret = co_dev_get_idx(dev, 1, &out_idx);
+
+  CHECK_EQUAL(1, ret);
+  CHECK_EQUAL(0x1234, out_idx);
+}
+
+TEST(CO_Dev, CoDevGetIdx_ManyObj1) {
+  co_obj_t* const obj1 = co_obj_create(0x0000);
+  co_obj_t* const obj2 = co_obj_create(0x1234);
+  co_obj_t* const obj3 = co_obj_create(0xffff);
+  co_dev_insert_obj(dev, obj1);
+  co_dev_insert_obj(dev, obj2);
+  co_dev_insert_obj(dev, obj3);
+
+  co_unsigned16_t out_idx[5] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
+  const auto ret = co_dev_get_idx(dev, 5, out_idx);
+
+  CHECK_EQUAL(3, ret);
+  CHECK_EQUAL(0x0000, out_idx[0]);
+  CHECK_EQUAL(0x1234, out_idx[1]);
+  CHECK_EQUAL(0xffff, out_idx[2]);
+  CHECK_EQUAL(0x0000, out_idx[3]);
+  CHECK_EQUAL(0x0000, out_idx[4]);
+}
+
+TEST(CO_Dev, CoDevGetIdx_ManyObj2) {
+  co_obj_t* const obj1 = co_obj_create(0x0000);
+  co_obj_t* const obj2 = co_obj_create(0x1234);
+  co_obj_t* const obj3 = co_obj_create(0xffff);
+  co_obj_t* const obj4 = co_obj_create(0xabcd);
+  co_obj_t* const obj5 = co_obj_create(0x1010);
+  co_dev_insert_obj(dev, obj1);
+  co_dev_insert_obj(dev, obj2);
+  co_dev_insert_obj(dev, obj3);
+  co_dev_insert_obj(dev, obj4);
+  co_dev_insert_obj(dev, obj5);
+
+  co_unsigned16_t out_idx[5] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
+  const auto ret = co_dev_get_idx(dev, 3, out_idx);
+
+  CHECK_EQUAL(5, ret);
+  CHECK_EQUAL(0x0000, out_idx[0]);
+  CHECK_EQUAL(0x1010, out_idx[1]);
+  CHECK_EQUAL(0x1234, out_idx[2]);
+  CHECK_EQUAL(0x0000, out_idx[3]);
+  CHECK_EQUAL(0x0000, out_idx[4]);
+}
+
+TEST(CO_Dev, CoDevInsertObj) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+
+  const auto ret = co_dev_insert_obj(dev, obj);
+
+  CHECK_EQUAL(0, ret);
+  POINTERS_EQUAL(obj, co_dev_first_obj(dev));
+  co_unsigned16_t out_idx = 0x0000;
+  CHECK_EQUAL(1, co_dev_get_idx(dev, 1, &out_idx));
+  CHECK_EQUAL(0x1234, out_idx);
+}
+
+TEST(CO_Dev, CoDevInsertObj_AddedToOtherDev) {
+  co_dev_t* const other_dev = co_dev_create(0x02);
+  co_obj_t* const obj = co_obj_create(0x0001);
+  CHECK_EQUAL(0, co_dev_insert_obj(other_dev, obj));
+
+  const auto ret = co_dev_insert_obj(dev, obj);
+
+  CHECK_EQUAL(-1, ret);
+
+  co_dev_destroy(other_dev);
+}
+
+TEST(CO_Dev, CoDevInsertObj_AlreadyAdded) {
+  co_obj_t* const obj = co_obj_create(0x0001);
+  co_dev_insert_obj(dev, obj);
+
+  const auto ret = co_dev_insert_obj(dev, obj);
+
+  CHECK_EQUAL(0, ret);
+}
+
+TEST(CO_Dev, CoDevInsertObj_AlreadyAddedAtIdx) {
+  co_obj_t* const obj1 = co_obj_create(0x0001);
+  co_obj_t* const obj2 = co_obj_create(0x0001);
+  co_dev_insert_obj(dev, obj1);
+
+  const auto ret = co_dev_insert_obj(dev, obj2);
+
+  CHECK_EQUAL(-1, ret);
+}
