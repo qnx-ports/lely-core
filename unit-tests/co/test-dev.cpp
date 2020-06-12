@@ -22,7 +22,6 @@
 
 #include <CppUTest/TestHarness.h>
 
-#include <config.h>
 #include <lely/co/dev.h>
 #include <lely/co/obj.h>
 #include <lely/util/errnum.h>
@@ -184,7 +183,7 @@ TEST(CO_Dev, CoDevSetId_CheckObj) {
   co_sub_t* const sub_def1 = co_sub_create(0x01, CO_DEFTYPE_INTEGER16);
   co_sub_t* const sub_def2 = co_sub_create(0x02, CO_DEFTYPE_INTEGER16);
   co_sub_t* const sub_val1 = co_sub_create(0x01, CO_DEFTYPE_INTEGER16);
-  co_sub_t* const sub_val2 = co_sub_create(0x02, CO_DEFTYPE_INTEGER16);
+  co_sub_t* const sub_val2 = co_sub_create(0x04, CO_DEFTYPE_INTEGER16);
 
   const co_integer16_t min_val1 = 0x0;
   const co_integer16_t min_val2 = 0x0 + co_dev_get_id(dev);
@@ -204,8 +203,6 @@ TEST(CO_Dev, CoDevSetId_CheckObj) {
   CHECK_EQUAL(2, co_sub_set_def(sub_def2, &def_val2, 2));
   co_sub_set_flags(sub_def2, CO_OBJ_FLAGS_DEF_NODEID);
 
-  co_sub_set_flags(sub_val2, CO_OBJ_FLAGS_VAL_NODEID);
-
   co_obj_insert_sub(obj1, sub_min1);
   co_obj_insert_sub(obj1, sub_min2);
   co_obj_insert_sub(obj2, sub_max1);
@@ -214,6 +211,10 @@ TEST(CO_Dev, CoDevSetId_CheckObj) {
   co_obj_insert_sub(obj3, sub_def2);
   co_obj_insert_sub(obj4, sub_val1);
   co_obj_insert_sub(obj4, sub_val2);
+
+  CHECK_EQUAL(2, co_sub_set_val_i16(sub_val1, 0x1234));
+  CHECK_EQUAL(2, co_sub_set_val_i16(sub_val2, 0x1234 + co_dev_get_id(dev)));
+  co_sub_set_flags(sub_val2, CO_OBJ_FLAGS_VAL_NODEID);
 
   co_dev_insert_obj(dev, obj);
   co_dev_insert_obj(dev, obj1);
@@ -249,8 +250,10 @@ TEST(CO_Dev, CoDevSetId_CheckObj) {
                               co_sub_get_def(co_obj_last_sub(out_obj_def))));
 
   const co_obj_t* const out_obj_val = co_obj_next(out_obj_def);
-  CHECK_EQUAL(0x0, *static_cast<const co_integer16_t*>(
+  CHECK_EQUAL(0x1234, *static_cast<const co_integer16_t*>(
                      co_sub_get_val(co_obj_first_sub(out_obj_val))));
+  CHECK_EQUAL(0x1234 + new_id, *static_cast<const co_integer16_t*>(
+                              co_sub_get_val(co_obj_last_sub(out_obj_val))));
 }
 
 TEST(CO_Dev, CoDevSetId_Unconfigured) {
