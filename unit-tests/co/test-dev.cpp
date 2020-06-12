@@ -406,4 +406,5 @@ TEST(CO_Dev, CoDevInsertObj_AlreadyAddedAtIdx) {
   const auto ret = co_dev_insert_obj(dev, obj2);
 
   CHECK_EQUAL(-1, ret);
+  co_obj_destroy(obj2);
 }
