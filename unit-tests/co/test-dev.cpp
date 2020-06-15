@@ -79,9 +79,9 @@ TEST(CO_DevInit, CODevInit_UnconfiguredId) {
   CHECK(obj1 != nullptr);
   CHECK(obj2 != nullptr);
   CHECK(obj3 != nullptr);
-  co_dev_insert_obj(dev, obj1);
-  co_dev_insert_obj(dev, obj2);
-  co_dev_insert_obj(dev, obj3);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj1));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj2));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj3));
 
   CHECK_EQUAL(0, co_dev_set_name(dev, "name"));
   CHECK_EQUAL(0, co_dev_set_vendor_name(dev, "vendor"));
@@ -200,17 +200,17 @@ TEST(CO_Dev, CoDevSetId_CheckObj) {
   CHECK_EQUAL(2, co_sub_set_def(sub_def2, &def_val2, 2));
   co_sub_set_flags(sub_def2, CO_OBJ_FLAGS_DEF_NODEID);
 
-  co_obj_insert_sub(obj1, sub_min1);
-  co_obj_insert_sub(obj1, sub_min2);
-  co_obj_insert_sub(obj2, sub_max1);
-  co_obj_insert_sub(obj2, sub_max2);
-  co_obj_insert_sub(obj3, sub_def1);
-  co_obj_insert_sub(obj3, sub_def2);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj1, sub_min1));
+  CHECK_EQUAL(0, co_obj_insert_sub(obj1, sub_min2));
+  CHECK_EQUAL(0, co_obj_insert_sub(obj2, sub_max1));
+  CHECK_EQUAL(0, co_obj_insert_sub(obj2, sub_max2));
+  CHECK_EQUAL(0, co_obj_insert_sub(obj3, sub_def1));
+  CHECK_EQUAL(0, co_obj_insert_sub(obj3, sub_def2));
 
-  co_dev_insert_obj(dev, obj);
-  co_dev_insert_obj(dev, obj1);
-  co_dev_insert_obj(dev, obj2);
-  co_dev_insert_obj(dev, obj3);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj1));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj2));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj3));
 
   const co_unsigned8_t new_id = 0x3d;
 
@@ -246,11 +246,11 @@ TEST(CO_Dev, CoDevSetId_CheckObj) {
   TEST(CO_Dev, CoDevSetId_CoType_##a) { \
     co_obj_t* const obj = co_obj_create(0x0000); \
     co_sub_t* const sub = co_sub_create(0x00, CO_DEFTYPE_##a); \
-    co_obj_insert_sub(obj, sub); \
+    CHECK_EQUAL(0, co_obj_insert_sub(obj, sub)); \
     CHECK_EQUAL(co_type_sizeof(CO_DEFTYPE_##a), \
                 co_sub_set_val_##c(sub, 0x42 + co_dev_get_id(dev))); \
     co_sub_set_flags(sub, CO_OBJ_FLAGS_VAL_NODEID); \
-    co_dev_insert_obj(dev, obj); \
+    CHECK_EQUAL(0, co_dev_insert_obj(dev, obj)); \
     const co_unsigned8_t new_id = 0x14; \
     const auto ret = co_dev_set_id(dev, new_id); \
     CHECK_EQUAL(0, ret); \
@@ -305,7 +305,7 @@ TEST(CO_Dev, CoDevGetIdx_EmptyNull) {
 
 TEST(CO_Dev, CoDevGetIdx_OneObjCheckNumber) {
   co_obj_t* const obj = co_obj_create(0x0000);
-  co_dev_insert_obj(dev, obj);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
   const auto ret = co_dev_get_idx(dev, 0xffff, nullptr);
 
@@ -314,7 +314,7 @@ TEST(CO_Dev, CoDevGetIdx_OneObjCheckNumber) {
 
 TEST(CO_Dev, CoDevGetIdx_OneObjCheckIdx) {
   co_obj_t* const obj = co_obj_create(0x1234);
-  co_dev_insert_obj(dev, obj);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
   co_unsigned16_t out_idx = 0x0000;
   const auto ret = co_dev_get_idx(dev, 1, &out_idx);
@@ -327,9 +327,9 @@ TEST(CO_Dev, CoDevGetIdx_ManyObj1) {
   co_obj_t* const obj1 = co_obj_create(0x0000);
   co_obj_t* const obj2 = co_obj_create(0x1234);
   co_obj_t* const obj3 = co_obj_create(0xffff);
-  co_dev_insert_obj(dev, obj1);
-  co_dev_insert_obj(dev, obj2);
-  co_dev_insert_obj(dev, obj3);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj1));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj2));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj3));
 
   co_unsigned16_t out_idx[5] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
   const auto ret = co_dev_get_idx(dev, 5, out_idx);
@@ -348,11 +348,11 @@ TEST(CO_Dev, CoDevGetIdx_ManyObj2) {
   co_obj_t* const obj3 = co_obj_create(0xffff);
   co_obj_t* const obj4 = co_obj_create(0xabcd);
   co_obj_t* const obj5 = co_obj_create(0x1010);
-  co_dev_insert_obj(dev, obj1);
-  co_dev_insert_obj(dev, obj2);
-  co_dev_insert_obj(dev, obj3);
-  co_dev_insert_obj(dev, obj4);
-  co_dev_insert_obj(dev, obj5);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj1));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj2));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj3));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj4));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj5));
 
   co_unsigned16_t out_idx[5] = {0x0000, 0x0000, 0x0000, 0x0000, 0x0000};
   const auto ret = co_dev_get_idx(dev, 3, out_idx);
@@ -375,6 +375,7 @@ TEST(CO_Dev, CoDevInsertObj) {
   co_unsigned16_t out_idx = 0x0000;
   CHECK_EQUAL(1, co_dev_get_idx(dev, 1, &out_idx));
   CHECK_EQUAL(0x1234, out_idx);
+  CHECK_EQUAL(dev, co_obj_get_dev(obj));
 }
 
 TEST(CO_Dev, CoDevInsertObj_AddedToOtherDev) {
@@ -391,7 +392,7 @@ TEST(CO_Dev, CoDevInsertObj_AddedToOtherDev) {
 
 TEST(CO_Dev, CoDevInsertObj_AlreadyAdded) {
   co_obj_t* const obj = co_obj_create(0x0001);
-  co_dev_insert_obj(dev, obj);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
   const auto ret = co_dev_insert_obj(dev, obj);
 
@@ -401,10 +402,254 @@ TEST(CO_Dev, CoDevInsertObj_AlreadyAdded) {
 TEST(CO_Dev, CoDevInsertObj_AlreadyAddedAtIdx) {
   co_obj_t* const obj1 = co_obj_create(0x0001);
   co_obj_t* const obj2 = co_obj_create(0x0001);
-  co_dev_insert_obj(dev, obj1);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj1));
 
   const auto ret = co_dev_insert_obj(dev, obj2);
 
   CHECK_EQUAL(-1, ret);
   co_obj_destroy(obj2);
+}
+
+TEST(CO_Dev, CoDevRemovObj) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const auto ret = co_dev_remove_obj(dev, obj);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(0, co_dev_get_idx(dev, 0, nullptr));
+  CHECK_EQUAL(nullptr, co_obj_get_dev(obj));
+}
+
+TEST(CO_Dev, CoDevRemovObj_NotAdded) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+
+  const auto ret = co_dev_remove_obj(dev, obj);
+
+  CHECK_EQUAL(-1, ret);
+}
+
+TEST(CO_Dev, CoDevFindObj) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const auto* const ret = co_dev_find_obj(dev, 0x1234);
+
+  POINTERS_EQUAL(obj, ret);
+}
+
+TEST(CO_Dev, CoDevFindObj_NotFound) {
+  const auto* const ret = co_dev_find_obj(dev, 0x1234);
+
+  POINTERS_EQUAL(nullptr, ret);
+}
+
+TEST(CO_Dev, CoDevFindSub) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const auto* const ret = co_dev_find_sub(dev, 0x1234, 0xab);
+
+  POINTERS_EQUAL(sub, ret);
+}
+
+TEST(CO_Dev, CoDevFindObj_NoObj) {
+  const auto* const ret = co_dev_find_sub(dev, 0x1234, 0x00);
+
+  POINTERS_EQUAL(nullptr, ret);
+}
+
+TEST(CO_Dev, CoDevFindObj_NoSub) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const auto* const ret = co_dev_find_sub(dev, 0x1234, 0x00);
+
+  POINTERS_EQUAL(nullptr, ret);
+}
+
+TEST(CO_Dev, CoDevFirstObj) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const auto* const ret = co_dev_first_obj(dev);
+
+  POINTERS_EQUAL(obj, ret);
+}
+
+TEST(CO_Dev, CoDevFirstObj_Empty) {
+  const auto* const ret = co_dev_first_obj(dev);
+
+  POINTERS_EQUAL(nullptr, ret);
+}
+
+TEST(CO_Dev, CoDevLastObj) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const auto* const ret = co_dev_last_obj(dev);
+
+  POINTERS_EQUAL(obj, ret);
+}
+
+TEST(CO_Dev, CoDevLastObj_Empty) {
+  const auto* const ret = co_dev_last_obj(dev);
+
+  POINTERS_EQUAL(nullptr, ret);
+}
+
+TEST(CO_Dev, CoDevSetName) {
+  const char* name = "DeviceName";
+  const auto ret = co_dev_set_name(dev, name);
+
+  CHECK_EQUAL(0, ret);
+  STRCMP_EQUAL(name, co_dev_get_name(dev));
+}
+
+TEST(CO_Dev, CoDevSetName_Null) {
+  const char* name = "DeviceName";
+  CHECK_EQUAL(0, co_dev_set_name(dev, name));
+
+  const auto ret = co_dev_set_name(dev, nullptr);
+
+  CHECK_EQUAL(0, ret);
+  POINTERS_EQUAL(nullptr, co_dev_get_name(dev));
+}
+
+TEST(CO_Dev, CoDevSetName_Empty) {
+  const char* name = "DeviceName";
+  CHECK_EQUAL(0, co_dev_set_name(dev, name));
+
+  const auto ret = co_dev_set_name(dev, "");
+
+  CHECK_EQUAL(0, ret);
+  POINTERS_EQUAL(nullptr, co_dev_get_name(dev));
+}
+
+TEST(CO_Dev, CoDevSetVendorName) {
+  const char* vendor_name = "VendorName";
+  const auto ret = co_dev_set_vendor_name(dev, vendor_name);
+
+  CHECK_EQUAL(0, ret);
+  STRCMP_EQUAL(vendor_name, co_dev_get_vendor_name(dev));
+}
+
+TEST(CO_Dev, CoDevSetVendorName_Null) {
+  const char* vendor_name = "VendorName";
+  CHECK_EQUAL(0, co_dev_set_vendor_name(dev, vendor_name));
+
+  const auto ret = co_dev_set_vendor_name(dev, nullptr);
+
+  CHECK_EQUAL(0, ret);
+  POINTERS_EQUAL(nullptr, co_dev_get_vendor_name(dev));
+}
+
+TEST(CO_Dev, CoDevSetVendorName_Empty) {
+  const char* vendor_name = "VendorName";
+  CHECK_EQUAL(0, co_dev_set_vendor_name(dev, vendor_name));
+
+  const auto ret = co_dev_set_vendor_name(dev, "");
+
+  CHECK_EQUAL(0, ret);
+  POINTERS_EQUAL(nullptr, co_dev_get_vendor_name(dev));
+}
+
+TEST(CO_Dev, CoDevSetVendorId) {
+  co_dev_set_vendor_id(dev, 0x12345678);
+
+  CHECK_EQUAL(0x12345678, co_dev_get_vendor_id(dev));
+}
+
+TEST(CO_Dev, CoDevSetProductName) {
+  const char* product_name = "ProductName";
+  const auto ret = co_dev_set_product_name(dev, product_name);
+
+  CHECK_EQUAL(0, ret);
+  STRCMP_EQUAL(product_name, co_dev_get_product_name(dev));
+}
+
+TEST(CO_Dev, CoDevSetProductName_Null) {
+  const char* product_name = "ProductName";
+  CHECK_EQUAL(0, co_dev_set_product_name(dev, product_name));
+
+  const auto ret = co_dev_set_product_name(dev, nullptr);
+
+  CHECK_EQUAL(0, ret);
+  POINTERS_EQUAL(nullptr, co_dev_get_product_name(dev));
+}
+
+TEST(CO_Dev, CoDevSetProductName_Empty) {
+  const char* product_name = "ProductName";
+  CHECK_EQUAL(0, co_dev_set_product_name(dev, product_name));
+
+  const auto ret = co_dev_set_product_name(dev, "");
+
+  CHECK_EQUAL(0, ret);
+  POINTERS_EQUAL(nullptr, co_dev_get_product_name(dev));
+}
+
+TEST(CO_Dev, CoDevSetProductCode) {
+  co_dev_set_product_code(dev, 0x12345678);
+
+  CHECK_EQUAL(0x12345678, co_dev_get_product_code(dev));
+}
+
+TEST(CO_Dev, CoDevSetRevision) {
+  co_dev_set_revision(dev, 0x12345678);
+
+  CHECK_EQUAL(0x12345678, co_dev_get_revision(dev));
+}
+
+TEST(CO_Dev, CoDevSetOrderCode) {
+  const char* order_code = "OrderCode";
+  const auto ret = co_dev_set_order_code(dev, order_code);
+
+  CHECK_EQUAL(0, ret);
+  STRCMP_EQUAL(order_code, co_dev_get_order_code(dev));
+}
+
+TEST(CO_Dev, CoDevSetOrderCode_Null) {
+  const char* order_code = "OrderCode";
+  CHECK_EQUAL(0, co_dev_set_order_code(dev, order_code));
+
+  const auto ret = co_dev_set_order_code(dev, nullptr);
+
+  CHECK_EQUAL(0, ret);
+  POINTERS_EQUAL(nullptr, co_dev_get_order_code(dev));
+}
+
+TEST(CO_Dev, CoDevSetOrderCode_Empty) {
+  const char* order_code = "OrderCode";
+  CHECK_EQUAL(0, co_dev_set_order_code(dev, order_code));
+
+  const auto ret = co_dev_set_order_code(dev, "");
+
+  CHECK_EQUAL(0, ret);
+  POINTERS_EQUAL(nullptr, co_dev_get_order_code(dev));
+}
+
+TEST(CO_Dev, CoDevSetBaud) {
+  co_dev_set_baud(dev, CO_BAUD_50 | CO_BAUD_1000);
+
+  CHECK_EQUAL(CO_BAUD_50 | CO_BAUD_1000, co_dev_get_baud(dev));
+}
+
+TEST(CO_Dev, CoDevSetRate) {
+  co_dev_set_rate(dev, 500);
+
+  CHECK_EQUAL(500, co_dev_get_rate(dev));
+}
+
+TEST(CO_Dev, CoDevSetLSS) {
+  co_dev_set_lss(dev, 123);
+
+  CHECK_EQUAL(true, co_dev_get_lss(dev));
+}
+
+TEST(CO_Dev, CoDevSetDommy) {
+  co_dev_set_dummy(dev, 0x00010001);
+
+  CHECK_EQUAL(0x00010001, co_dev_get_dummy(dev));
 }
