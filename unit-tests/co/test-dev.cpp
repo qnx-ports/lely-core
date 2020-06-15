@@ -418,7 +418,7 @@ TEST(CO_Dev, CoDevRemovObj) {
 
   CHECK_EQUAL(0, ret);
   CHECK_EQUAL(0, co_dev_get_idx(dev, 0, nullptr));
-  CHECK_EQUAL(nullptr, co_obj_get_dev(obj));
+  POINTERS_EQUAL(nullptr, co_obj_get_dev(obj));
 }
 
 TEST(CO_Dev, CoDevRemovObj_NotAdded) {
