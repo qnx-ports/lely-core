@@ -410,7 +410,7 @@ TEST(CO_Dev, CoDevInsertObj_AlreadyAddedAtIdx) {
   co_obj_destroy(obj2);
 }
 
-TEST(CO_Dev, CoDevRemovObj) {
+TEST(CO_Dev, CoDevRemoveObj) {
   co_obj_t* const obj = co_obj_create(0x1234);
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
@@ -419,14 +419,18 @@ TEST(CO_Dev, CoDevRemovObj) {
   CHECK_EQUAL(0, ret);
   CHECK_EQUAL(0, co_dev_get_idx(dev, 0, nullptr));
   POINTERS_EQUAL(nullptr, co_obj_get_dev(obj));
+
+  co_obj_destroy(obj);
 }
 
-TEST(CO_Dev, CoDevRemovObj_NotAdded) {
+TEST(CO_Dev, CoDevRemoveObj_NotAdded) {
   co_obj_t* const obj = co_obj_create(0x1234);
 
   const auto ret = co_dev_remove_obj(dev, obj);
 
   CHECK_EQUAL(-1, ret);
+
+  co_obj_destroy(obj);
 }
 
 TEST(CO_Dev, CoDevFindObj) {
