@@ -244,8 +244,8 @@ TEST(CO_Dev, CoDevSetId_CheckObj) {
 
 #define LELY_CO_DEFINE_TYPE(a, b, c, d) \
   TEST(CO_Dev, CoDevSetId_CoType_##a) { \
-    co_obj_t* const obj = co_obj_create(0x0000); \
-    co_sub_t* const sub = co_sub_create(0x00, CO_DEFTYPE_##a); \
+    co_obj_t* const obj = co_obj_create(0x1234); \
+    co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_##a); \
     CHECK_EQUAL(0, co_obj_insert_sub(obj, sub)); \
     CHECK_EQUAL(co_type_sizeof(CO_DEFTYPE_##a), \
                 co_sub_set_val_##c(sub, 0x42 + co_dev_get_id(dev))); \
@@ -657,3 +657,64 @@ TEST(CO_Dev, CoDevSetDommy) {
 
   CHECK_EQUAL(0x00010001, co_dev_get_dummy(dev));
 }
+
+TEST(CO_Dev, CoDevGetVal) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(co_type_sizeof(CO_DEFTYPE_INTEGER16),
+              co_sub_set_val_i16(sub, 0x0987));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const auto* ret =
+      static_cast<const co_integer16_t*>(co_dev_get_val(dev, 0x1234, 0xab));
+
+  CHECK(ret != nullptr);
+  CHECK_EQUAL(0x0987, *ret);
+}
+
+TEST(CO_Dev, CoDevGetVal_NullDev) {
+  const auto ret = co_dev_get_val(nullptr, 0x0000, 0x00);
+
+  CHECK_EQUAL(nullptr, ret);
+}
+
+TEST(CO_Dev, CoDevGetVal_NotFound) {
+  const auto ret = co_dev_get_val(dev, 0x0000, 0x00);
+
+  CHECK_EQUAL(nullptr, ret);
+}
+
+TEST(CO_Dev, CoDevSetVal) {
+  co_unsigned16_t val = 0x0987;
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const auto ret = co_dev_set_val(dev, 0x1234, 0xab, &val, 2);
+
+  CHECK_EQUAL(2, ret);
+  CHECK_EQUAL(val, co_dev_get_val_i16(dev, 0x1234, 0xab));
+}
+
+TEST(CO_Dev, CoDevSetVal_NotFound) {
+  const auto ret = co_dev_set_val(dev, 0x0000, 0x00, nullptr, 0);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(ERRNUM_INVAL, get_errnum());
+}
+
+#define LELY_CO_DEFINE_TYPE(a, b, c, d) \
+  TEST(CO_Dev, CoDevSetGetVal_CoType_##a) { \
+    co_obj_t* const obj = co_obj_create(0x1234); \
+    co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_##a); \
+    CHECK_EQUAL(0, co_obj_insert_sub(obj, sub)); \
+    CHECK_EQUAL(0, co_dev_insert_obj(dev, obj)); \
+    const auto set_ret = co_dev_set_val_##c(dev, 0x1234, 0xab, 0x42); \
+    CHECK_EQUAL(co_type_sizeof(CO_DEFTYPE_##a), set_ret); \
+    const co_##b##_t get_ret = co_dev_get_val_##c(dev, 0x1234, 0xab); \
+    CHECK_EQUAL(get_ret, static_cast<co_##b##_t>(0x42)); \
+  }
+#include <lely/co/def/basic.def>  // NOLINT(build/include)
+#undef LELY_CO_DEFINE_TYPE
