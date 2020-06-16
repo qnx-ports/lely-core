@@ -676,13 +676,13 @@ TEST(CO_Dev, CoDevGetVal) {
 TEST(CO_Dev, CoDevGetVal_NullDev) {
   const auto ret = co_dev_get_val(nullptr, 0x0000, 0x00);
 
-  CHECK_EQUAL(nullptr, ret);
+  POINTERS_EQUAL(nullptr, ret);
 }
 
 TEST(CO_Dev, CoDevGetVal_NotFound) {
   const auto ret = co_dev_get_val(dev, 0x0000, 0x00);
 
-  CHECK_EQUAL(nullptr, ret);
+  POINTERS_EQUAL(nullptr, ret);
 }
 
 TEST(CO_Dev, CoDevSetVal) {
