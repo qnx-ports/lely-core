@@ -718,3 +718,46 @@ TEST(CO_Dev, CoDevSetVal_NotFound) {
   }
 #include <lely/co/def/basic.def>  // NOLINT(build/include)
 #undef LELY_CO_DEFINE_TYPE
+
+TEST(CO_Dev, CoDevReadSub) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  uint_least8_t buf[] = { 0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09 };
+  co_unsigned16_t idx = 0x0000;
+  co_unsigned8_t subidx = 0x00;
+
+  const auto ret = co_dev_read_sub(dev, &idx, &subidx, buf, buf+8);
+
+  CHECK_EQUAL(9, ret);
+  CHECK_EQUAL(0x1234, idx);
+  CHECK_EQUAL(0xab, subidx);
+  CHECK_EQUAL(0x0987, co_dev_get_val_i16(dev, idx, subidx));
+}
+
+TEST(CO_Dev, CoDevReadSub_NoIdx) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  uint_least8_t buf[] = { 0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09 };
+
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf+8);
+
+  CHECK_EQUAL(9, ret);
+  CHECK_EQUAL(0x0987, co_dev_get_val_i16(dev, 0x1234, 0xab));
+}
+
+TEST(CO_Dev, CoDevReadSub_NoSub) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  uint_least8_t buf[] = { 0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09 };
+
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf+8);
+
+  CHECK_EQUAL(9, ret);
+}
