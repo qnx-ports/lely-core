@@ -20,11 +20,53 @@
  * limitations under the License.
  */
 
+#include <string>
+
 #include <CppUTest/TestHarness.h>
 
 #include <lely/co/dev.h>
 #include <lely/co/obj.h>
 #include <lely/util/errnum.h>
+
+/* Lely CO/val overrides */
+
+/* co_val_read() override */
+static int valid_calls_co_val_read = -1;  // -1 means no limit
+
+extern "C" {
+extern size_t __real_co_val_read(co_unsigned16_t, void*, const uint_least8_t*,
+                                 const uint_least8_t*);
+
+size_t
+__wrap_co_val_read(co_unsigned16_t type, void* val, const uint_least8_t* begin,
+                   const uint_least8_t* end) {
+  if (valid_calls_co_val_read == 0) return 0;
+
+  if (valid_calls_co_val_read > 0) --valid_calls_co_val_read;
+
+  return __real_co_val_read(type, val, begin, end);
+}
+}
+/* end of co_val_read() override */
+
+/* co_val_write() override */
+static int valid_calls_co_val_write = -1;  // -1 means no limit
+
+extern "C" {
+extern size_t __real_co_val_write(co_unsigned16_t type, const void* val,
+                                  uint_least8_t* begin, uint_least8_t* end);
+
+size_t
+__wrap_co_val_write(co_unsigned16_t type, const void* val, uint_least8_t* begin,
+                    uint_least8_t* end) {
+  if (valid_calls_co_val_write == 0) return 0;
+
+  if (valid_calls_co_val_write > 0) --valid_calls_co_val_write;
+
+  return __real_co_val_write(type, val, begin, end);
+}
+}
+/* end of co_val_write() override */
 
 TEST_GROUP(CO_DevInit){};
 
@@ -129,12 +171,28 @@ TEST(CO_DevInit, CODevDestroy_Null) { co_dev_destroy(nullptr); }
 TEST_GROUP(CO_Dev) {
   co_dev_t* dev = nullptr;
 
+  static void CheckBuffers(const uint_least8_t* buf1, const uint_least8_t* buf2,
+                           const size_t n) {
+    for (size_t i = 0; i < n; ++i) {
+      const std::string check_text = "buf[" + std::to_string(i) + "]";
+      CHECK_EQUAL_TEXT(buf2[i], buf1[i], check_text.c_str());
+    }
+  }
+
   TEST_SETUP() {
+    valid_calls_co_val_read = -1;
+    valid_calls_co_val_write = -1;
+
     dev = co_dev_create(0x01);
     CHECK(dev != nullptr);
   }
 
-  TEST_TEARDOWN() { co_dev_destroy(dev); }
+  TEST_TEARDOWN() {
+    valid_calls_co_val_read = -1;
+    valid_calls_co_val_write = -1;
+
+    co_dev_destroy(dev);
+  }
 };
 
 TEST(CO_Dev, CoDevSetNetId) {
@@ -804,4 +862,226 @@ TEST(CO_Dev, CoDevReadSub_TooSmallForType) {
   const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 7);
 
   CHECK_EQUAL(0, ret);
+}
+
+TEST(CO_Dev, CoDevReadSub_ReadIdxFailed) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  valid_calls_co_val_read = 0;
+  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
+
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 8);
+
+  CHECK_EQUAL(0, ret);
+}
+
+TEST(CO_Dev, CoDevReadSub_ReadSubidxFailed) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  valid_calls_co_val_read = 1;
+  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
+
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 8);
+
+  CHECK_EQUAL(0, ret);
+}
+
+TEST(CO_Dev, CoDevReadSub_ReadSizeFailed) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  valid_calls_co_val_read = 2;
+  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
+
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 8);
+
+  CHECK_EQUAL(0, ret);
+}
+
+TEST(CO_Dev, CoDevReadSub_ValSizeTooBig) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+  CHECK_EQUAL(2, co_dev_set_val_i16(dev, 0x1234, 0xab, 0x1a1a));
+
+  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x03, 0x00,
+                         0x00, 0x00, 0x87, 0x09, 0x00};
+
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 9);
+
+  CHECK_EQUAL(10, ret);
+  CHECK_EQUAL(0x1a1a, co_dev_get_val_i16(dev, 0x1234, 0xab));
+}
+
+TEST(CO_Dev, CoDevWriteSub) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+  CHECK_EQUAL(2, co_dev_set_val_i16(dev, 0x1234, 0xab, 0x0987));
+
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0};
+
+  const auto ret =
+      co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);  // FIXME
+
+  CHECK_EQUAL(BUF_SIZE, ret);
+  uint_least8_t test_buf[] = {0x34, 0x12, 0xab, 0x02, 0x00,
+                              0x00, 0x00, 0x87, 0x09};
+  CheckBuffers(buf, test_buf, BUF_SIZE);
+}
+
+TEST(CO_Dev, CoDevWriteSub_NoSub) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0};
+
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE - 1);
+
+  CHECK_EQUAL(0, ret);
+}
+
+TEST(CO_Dev, CoDevWriteSub_InitWriteFailed) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0};
+  valid_calls_co_val_write = 0;
+
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE - 1);
+
+  CHECK_EQUAL(0, ret);
+}
+
+TEST(CO_Dev, CoDevWriteSub_NoBegin) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, nullptr, nullptr);
+
+  CHECK_EQUAL(9, ret);
+}
+
+TEST(CO_Dev, CoDevWriteSub_NoEnd) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+  CHECK_EQUAL(2, co_dev_set_val_i16(dev, 0x1234, 0xab, 0x0987));
+
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0};
+
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, nullptr);
+
+  CHECK_EQUAL(BUF_SIZE, ret);
+  uint_least8_t test_buf[] = {0x34, 0x12, 0xab, 0x02, 0x00,
+                              0x00, 0x00, 0x87, 0x09};
+  CheckBuffers(buf, test_buf, BUF_SIZE);
+}
+
+TEST(CO_Dev, CoDevWriteSub_TooSmallBuffer) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const size_t BUF_SIZE = 8;
+  uint_least8_t buf[BUF_SIZE] = {0};
+
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE - 1);
+
+  CHECK_EQUAL(9, ret);
+  uint_least8_t test_buf[BUF_SIZE] = {0};
+  CheckBuffers(buf, test_buf, BUF_SIZE);
+}
+
+TEST(CO_Dev, CoDevWriteSub_IdxWriteFailed) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+  CHECK_EQUAL(2, co_dev_set_val_i16(dev, 0x1234, 0xab, 0x0987));
+
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0};
+  valid_calls_co_val_write = 1;
+
+  const auto ret =
+      co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);  // FIXME
+
+  CHECK_EQUAL(0, ret);
+  uint_least8_t test_buf[BUF_SIZE] = {0};
+  CheckBuffers(buf, test_buf, BUF_SIZE);
+}
+
+TEST(CO_Dev, CoDevWriteSub_SubidxWriteFailed) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+  CHECK_EQUAL(2, co_dev_set_val_i16(dev, 0x1234, 0xab, 0x0987));
+
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0};
+  valid_calls_co_val_write = 2;
+
+  const auto ret =
+      co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);  // FIXME
+
+  CHECK_EQUAL(0, ret);
+  uint_least8_t test_buf[] = {0x34, 0x12, 0x00, 0x00, 0x00,
+                              0x00, 0x00, 0x00, 0x00};
+  CheckBuffers(buf, test_buf, BUF_SIZE);
+}
+
+TEST(CO_Dev, CoDevWriteSub_SizeWriteFailed) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+  CHECK_EQUAL(2, co_dev_set_val_i16(dev, 0x1234, 0xab, 0x0987));
+
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0};
+  valid_calls_co_val_write = 3;
+
+  const auto ret =
+      co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);  // FIXME
+
+  CHECK_EQUAL(0, ret);
+  uint_least8_t test_buf[] = {0x34, 0x12, 0xab, 0x00, 0x00,
+                              0x00, 0x00, 0x00, 0x00};
+  CheckBuffers(buf, test_buf, BUF_SIZE);
+}
+
+TEST(CO_Dev, CoDevWriteSub_ValWriteFailed) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+  CHECK_EQUAL(2, co_dev_set_val_i16(dev, 0x1234, 0xab, 0x0987));
+
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0};
+  valid_calls_co_val_write = 4;
+
+  const auto ret =
+      co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);  // FIXME
+
+  CHECK_EQUAL(0, ret);
+  uint_least8_t test_buf[] = {0x34, 0x12, 0xab, 0x02, 0x00,
+                              0x00, 0x00, 0x00, 0x00};
+  CheckBuffers(buf, test_buf, BUF_SIZE);
 }

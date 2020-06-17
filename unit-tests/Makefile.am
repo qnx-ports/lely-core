@@ -69,6 +69,7 @@ src_co_tests += co/test-type.cpp
 
 unit_test_co_SOURCES = tests-shared-main.cpp $(src_co_tests)
 unit_test_co_LDADD = $(LELY_LIBC_LIBS) $(LELY_UTIL_LIBS) $(LELY_CAN_LIBS) $(LELY_CO_LIBS) $(CPPUTEST_LIBS)
+unit_test_co_LDFLAGS = -Wl,--wrap=co_val_read -Wl,--wrap=co_val_write
 
 # Compilation flags
 
