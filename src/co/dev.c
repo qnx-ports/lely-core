@@ -662,7 +662,7 @@ co_dev_write_sub(const co_dev_t *dev, co_unsigned16_t idx,
 	if (!size && co_val_sizeof(type, val))
 		return 0;
 
-	if (begin && (!end || end - begin >= (ptrdiff_t)(2 + 1 + 4 + size))) {
+	if (begin && (!end || end - begin >= (ptrdiff_t)(2 + 1 + 4 + size - 1))) {
 		// Write the object index.
 		if (co_val_write(CO_DEFTYPE_UNSIGNED16, &idx, begin, end) != 2)
 			return 0;
