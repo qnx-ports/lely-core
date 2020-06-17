@@ -761,3 +761,47 @@ TEST(CO_Dev, CoDevReadSub_NoSub) {
 
   CHECK_EQUAL(9, ret);
 }
+
+TEST(CO_Dev, CoDevReadSub_NoBegin) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
+
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, nullptr, buf + 8);
+
+  CHECK_EQUAL(0, ret);
+}
+
+TEST(CO_Dev, CoDevReadSub_NoEnd) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
+
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, nullptr);
+
+  CHECK_EQUAL(0, ret);
+}
+
+TEST(CO_Dev, CoDevReadSub_TooSmallBuffer) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x01, 0x00, 0x00, 0x00};
+
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 6);
+
+  CHECK_EQUAL(0, ret);
+}
+
+TEST(CO_Dev, CoDevReadSub_TooSmallForType) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87};
+
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 7);
+
+  CHECK_EQUAL(0, ret);
+}
