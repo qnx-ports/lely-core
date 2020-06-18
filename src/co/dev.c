@@ -625,7 +625,7 @@ co_dev_read_sub(co_dev_t *dev, co_unsigned16_t *pidx, co_unsigned8_t *psubidx,
 		return 0;
 	begin += 4;
 
-	if (end - begin < (ptrdiff_t)(size - 1))
+	if (end - begin < (ptrdiff_t)size)
 		return 0;
 
 	// Read the value into the sub-object, if it exists.
