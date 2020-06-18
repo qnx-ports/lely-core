@@ -783,13 +783,15 @@ TEST(CO_Dev, CoDevReadSub) {
   CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
-  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
+                                 0x00, 0x00, 0x87, 0x09};
   co_unsigned16_t idx = 0x0000;
   co_unsigned8_t subidx = 0x00;
 
-  const auto ret = co_dev_read_sub(dev, &idx, &subidx, buf, buf + 8);
+  const auto ret = co_dev_read_sub(dev, &idx, &subidx, buf, buf + BUF_SIZE);
 
-  CHECK_EQUAL(9, ret);
+  CHECK_EQUAL(BUF_SIZE, ret);
   CHECK_EQUAL(0x1234, idx);
   CHECK_EQUAL(0xab, subidx);
   CHECK_EQUAL(0x0987, co_dev_get_val_i16(dev, idx, subidx));
@@ -801,11 +803,13 @@ TEST(CO_Dev, CoDevReadSub_NoIdx) {
   CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
-  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
+                                 0x00, 0x00, 0x87, 0x09};
 
-  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 8);
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
-  CHECK_EQUAL(9, ret);
+  CHECK_EQUAL(BUF_SIZE, ret);
   CHECK_EQUAL(0x0987, co_dev_get_val_i16(dev, 0x1234, 0xab));
 }
 
@@ -813,20 +817,25 @@ TEST(CO_Dev, CoDevReadSub_NoSub) {
   co_obj_t* const obj = co_obj_create(0x1234);
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
-  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
+                                 0x00, 0x00, 0x87, 0x09};
 
-  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 8);
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
-  CHECK_EQUAL(9, ret);
+  CHECK_EQUAL(BUF_SIZE, ret);
 }
 
 TEST(CO_Dev, CoDevReadSub_NoBegin) {
   co_obj_t* const obj = co_obj_create(0x1234);
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
-  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
+                                 0x00, 0x00, 0x87, 0x09};
 
-  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, nullptr, buf + 8);
+  const auto ret =
+      co_dev_read_sub(dev, nullptr, nullptr, nullptr, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
 }
@@ -835,7 +844,9 @@ TEST(CO_Dev, CoDevReadSub_NoEnd) {
   co_obj_t* const obj = co_obj_create(0x1234);
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
-  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
+                                 0x00, 0x00, 0x87, 0x09};
 
   const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, nullptr);
 
@@ -846,9 +857,10 @@ TEST(CO_Dev, CoDevReadSub_TooSmallBuffer) {
   co_obj_t* const obj = co_obj_create(0x1234);
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
-  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x01, 0x00, 0x00, 0x00};
+  const size_t BUF_SIZE = 7;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x01, 0x00, 0x00, 0x00};
 
-  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 6);
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
 }
@@ -857,9 +869,11 @@ TEST(CO_Dev, CoDevReadSub_TooSmallForType) {
   co_obj_t* const obj = co_obj_create(0x1234);
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
-  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87};
+  const size_t BUF_SIZE = 8;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02,
+                                 0x00, 0x00, 0x00, 0x87};
 
-  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 7);
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
 }
@@ -868,10 +882,12 @@ TEST(CO_Dev, CoDevReadSub_ReadIdxFailed) {
   co_obj_t* const obj = co_obj_create(0x1234);
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
+                                 0x00, 0x00, 0x87, 0x09};
   valid_calls_co_val_read = 0;
-  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
 
-  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 8);
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
 }
@@ -880,10 +896,12 @@ TEST(CO_Dev, CoDevReadSub_ReadSubidxFailed) {
   co_obj_t* const obj = co_obj_create(0x1234);
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
+                                 0x00, 0x00, 0x87, 0x09};
   valid_calls_co_val_read = 1;
-  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
 
-  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 8);
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
 }
@@ -892,10 +910,12 @@ TEST(CO_Dev, CoDevReadSub_ReadSizeFailed) {
   co_obj_t* const obj = co_obj_create(0x1234);
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
+  const size_t BUF_SIZE = 9;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
+                                 0x00, 0x00, 0x87, 0x09};
   valid_calls_co_val_read = 2;
-  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x02, 0x00, 0x00, 0x00, 0x87, 0x09};
 
-  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 8);
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
 }
@@ -907,12 +927,13 @@ TEST(CO_Dev, CoDevReadSub_ValSizeTooBig) {
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
   CHECK_EQUAL(2, co_dev_set_val_i16(dev, 0x1234, 0xab, 0x1a1a));
 
-  uint_least8_t buf[] = {0x34, 0x12, 0xab, 0x03, 0x00,
-                         0x00, 0x00, 0x87, 0x09, 0x00};
+  const size_t BUF_SIZE = 10;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x03, 0x00,
+                                 0x00, 0x00, 0x87, 0x09, 0x00};
 
-  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + 9);
+  const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
-  CHECK_EQUAL(10, ret);
+  CHECK_EQUAL(BUF_SIZE, ret);
   CHECK_EQUAL(0x1a1a, co_dev_get_val_i16(dev, 0x1234, 0xab));
 }
 
@@ -926,8 +947,7 @@ TEST(CO_Dev, CoDevWriteSub) {
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0};
 
-  const auto ret =
-      co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);  // FIXME
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(BUF_SIZE, ret);
   uint_least8_t test_buf[] = {0x34, 0x12, 0xab, 0x02, 0x00,
@@ -942,7 +962,7 @@ TEST(CO_Dev, CoDevWriteSub_NoSub) {
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0};
 
-  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE - 1);
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
 }
@@ -957,7 +977,7 @@ TEST(CO_Dev, CoDevWriteSub_InitWriteFailed) {
   uint_least8_t buf[BUF_SIZE] = {0};
   valid_calls_co_val_write = 0;
 
-  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE - 1);
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
 }
@@ -1000,7 +1020,7 @@ TEST(CO_Dev, CoDevWriteSub_TooSmallBuffer) {
   const size_t BUF_SIZE = 8;
   uint_least8_t buf[BUF_SIZE] = {0};
 
-  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE - 1);
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(9, ret);
   uint_least8_t test_buf[BUF_SIZE] = {0};
@@ -1018,8 +1038,7 @@ TEST(CO_Dev, CoDevWriteSub_IdxWriteFailed) {
   uint_least8_t buf[BUF_SIZE] = {0};
   valid_calls_co_val_write = 1;
 
-  const auto ret =
-      co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);  // FIXME
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
   uint_least8_t test_buf[BUF_SIZE] = {0};
@@ -1037,8 +1056,7 @@ TEST(CO_Dev, CoDevWriteSub_SubidxWriteFailed) {
   uint_least8_t buf[BUF_SIZE] = {0};
   valid_calls_co_val_write = 2;
 
-  const auto ret =
-      co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);  // FIXME
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
   uint_least8_t test_buf[] = {0x34, 0x12, 0x00, 0x00, 0x00,
@@ -1057,8 +1075,7 @@ TEST(CO_Dev, CoDevWriteSub_SizeWriteFailed) {
   uint_least8_t buf[BUF_SIZE] = {0};
   valid_calls_co_val_write = 3;
 
-  const auto ret =
-      co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);  // FIXME
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
   uint_least8_t test_buf[] = {0x34, 0x12, 0xab, 0x00, 0x00,
@@ -1077,8 +1094,7 @@ TEST(CO_Dev, CoDevWriteSub_ValWriteFailed) {
   uint_least8_t buf[BUF_SIZE] = {0};
   valid_calls_co_val_write = 4;
 
-  const auto ret =
-      co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);  // FIXME
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
   CHECK_EQUAL(0, ret);
   uint_least8_t test_buf[] = {0x34, 0x12, 0xab, 0x02, 0x00,
