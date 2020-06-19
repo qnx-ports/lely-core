@@ -31,7 +31,7 @@
 #include <lely/can/msg.h>
 #include <lely/util/errnum.h>
 
-#include "unit-tests/libc-overrides.hpp"
+#include "unit-tests/override/libc_stdio.h"
 
 /* lely/can/can_msg_bits() */
 

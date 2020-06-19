@@ -17,6 +17,21 @@ bin += test-cpputest
 test_cpputest_SOURCES = tests-shared-main.cpp test-cpputest.cpp
 test_cpputest_LDADD = $(CPPUTEST_LIBS)
 
+# Override library (lely-core)
+
+liblelyco_val_override_src =
+liblelyco_val_override_src += override/lelyco_val.c
+
+lib_LTLIBRARIES = liblelyco_val_override.la
+
+liblelyco_val_override_la_LDFLAGS =
+liblelyco_val_override_la_LDFLAGS += -Wl,--as-needed
+liblelyco_val_override_la_LIBADD =
+liblelyco_val_override_la_LIBADD += -ldl
+
+liblelyco_val_override_la_CPPFLAGS = -I$(top_srcdir)/include
+liblelyco_val_override_la_SOURCES = $(liblelyco_val_override_src)
+
 # Utilities library tests
 
 LELY_UTIL_LIBS = $(top_builddir)/src/util/liblely-util.la
@@ -68,7 +83,7 @@ src_co_tests += co/test-dev.cpp
 src_co_tests += co/test-type.cpp
 
 unit_test_co_SOURCES = tests-shared-main.cpp $(src_co_tests)
-unit_test_co_LDADD = $(LELY_LIBC_LIBS) $(LELY_UTIL_LIBS) $(LELY_CAN_LIBS) $(LELY_CO_LIBS) $(CPPUTEST_LIBS)
+unit_test_co_LDADD = $(LELY_LIBC_LIBS) $(LELY_UTIL_LIBS) $(LELY_CAN_LIBS) liblelyco_val_override.la $(LELY_CO_LIBS) $(CPPUTEST_LIBS)
 unit_test_co_LDFLAGS = -Wl,--wrap=co_val_read -Wl,--wrap=co_val_write
 
 # Compilation flags

@@ -28,45 +28,7 @@
 #include <lely/co/obj.h>
 #include <lely/util/errnum.h>
 
-/* Lely CO/val overrides */
-
-/* co_val_read() override */
-static int valid_calls_co_val_read = -1;  // -1 means no limit
-
-extern "C" {
-extern size_t __real_co_val_read(co_unsigned16_t, void*, const uint_least8_t*,
-                                 const uint_least8_t*);
-
-size_t
-__wrap_co_val_read(co_unsigned16_t type, void* val, const uint_least8_t* begin,
-                   const uint_least8_t* end) {
-  if (valid_calls_co_val_read == 0) return 0;
-
-  if (valid_calls_co_val_read > 0) --valid_calls_co_val_read;
-
-  return __real_co_val_read(type, val, begin, end);
-}
-}
-/* end of co_val_read() override */
-
-/* co_val_write() override */
-static int valid_calls_co_val_write = -1;  // -1 means no limit
-
-extern "C" {
-extern size_t __real_co_val_write(co_unsigned16_t type, const void* val,
-                                  uint_least8_t* begin, uint_least8_t* end);
-
-size_t
-__wrap_co_val_write(co_unsigned16_t type, const void* val, uint_least8_t* begin,
-                    uint_least8_t* end) {
-  if (valid_calls_co_val_write == 0) return 0;
-
-  if (valid_calls_co_val_write > 0) --valid_calls_co_val_write;
-
-  return __real_co_val_write(type, val, begin, end);
-}
-}
-/* end of co_val_write() override */
+#include "override/lelyco_val.h"
 
 TEST_GROUP(CO_DevInit){};
 
@@ -180,16 +142,16 @@ TEST_GROUP(CO_Dev) {
   }
 
   TEST_SETUP() {
-    valid_calls_co_val_read = -1;
-    valid_calls_co_val_write = -1;
+    override_co_val_read_vc = -1;
+    override_co_val_write_vc = -1;
 
     dev = co_dev_create(0x01);
     CHECK(dev != nullptr);
   }
 
   TEST_TEARDOWN() {
-    valid_calls_co_val_read = -1;
-    valid_calls_co_val_write = -1;
+    override_co_val_read_vc = -1;
+    override_co_val_write_vc = -1;
 
     co_dev_destroy(dev);
   }
@@ -885,7 +847,7 @@ TEST(CO_Dev, CoDevReadSub_ReadIdxFailed) {
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
                                  0x00, 0x00, 0x87, 0x09};
-  valid_calls_co_val_read = 0;
+  override_co_val_read_vc = 0;
 
   const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
@@ -899,7 +861,7 @@ TEST(CO_Dev, CoDevReadSub_ReadSubidxFailed) {
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
                                  0x00, 0x00, 0x87, 0x09};
-  valid_calls_co_val_read = 1;
+  override_co_val_read_vc = 1;
 
   const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
@@ -913,7 +875,7 @@ TEST(CO_Dev, CoDevReadSub_ReadSizeFailed) {
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
                                  0x00, 0x00, 0x87, 0x09};
-  valid_calls_co_val_read = 2;
+  override_co_val_read_vc = 2;
 
   const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
@@ -975,7 +937,7 @@ TEST(CO_Dev, CoDevWriteSub_InitWriteFailed) {
 
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0};
-  valid_calls_co_val_write = 0;
+  override_co_val_write_vc = 0;
 
   const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
@@ -1036,7 +998,7 @@ TEST(CO_Dev, CoDevWriteSub_IdxWriteFailed) {
 
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0};
-  valid_calls_co_val_write = 1;
+  override_co_val_write_vc = 1;
 
   const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
@@ -1054,7 +1016,7 @@ TEST(CO_Dev, CoDevWriteSub_SubidxWriteFailed) {
 
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0};
-  valid_calls_co_val_write = 2;
+  override_co_val_write_vc = 2;
 
   const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
@@ -1073,7 +1035,7 @@ TEST(CO_Dev, CoDevWriteSub_SizeWriteFailed) {
 
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0};
-  valid_calls_co_val_write = 3;
+  override_co_val_write_vc = 3;
 
   const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
@@ -1092,7 +1054,7 @@ TEST(CO_Dev, CoDevWriteSub_ValWriteFailed) {
 
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0};
-  valid_calls_co_val_write = 4;
+  override_co_val_write_vc = 4;
 
   const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 
