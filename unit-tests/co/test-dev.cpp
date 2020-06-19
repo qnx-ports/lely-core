@@ -28,7 +28,9 @@
 #include <lely/co/obj.h>
 #include <lely/util/errnum.h>
 
+#ifndef _WIN32
 #include "override/lelyco-val.h"
+#endif
 
 TEST_GROUP(CO_DevInit){};
 
@@ -142,17 +144,19 @@ TEST_GROUP(CO_Dev) {
   }
 
   TEST_SETUP() {
+#ifndef _WIN32
     override_co_val_read_vc = -1;
     override_co_val_write_vc = -1;
-
+#endif
     dev = co_dev_create(0x01);
     CHECK(dev != nullptr);
   }
 
   TEST_TEARDOWN() {
+#ifndef _WIN32
     override_co_val_read_vc = -1;
     override_co_val_write_vc = -1;
-
+#endif
     co_dev_destroy(dev);
   }
 };
