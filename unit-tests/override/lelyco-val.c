@@ -2,7 +2,7 @@
 #define _GNU_SOURCE
 #include <dlfcn.h>
 
-#include "lelyco_val.h"
+#include "lelyco-val.h"
 
 int override_co_val_read_vc = -1;
 int override_co_val_write_vc = -1;
