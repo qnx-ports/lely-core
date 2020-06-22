@@ -21,6 +21,7 @@ test_cpputest_LDADD = $(CPPUTEST_LIBS)
 
 OVERRIDE_LELY_CO_VAL_LIB =
 
+if ENABLE_SHARED
 if !PLATFORM_WIN32
 liblelyco_val_override_src =
 liblelyco_val_override_src += override/lelyco-val.c
@@ -32,10 +33,11 @@ liblelyco_val_override_la_LDFLAGS += -Wl,--as-needed
 liblelyco_val_override_la_LIBADD =
 liblelyco_val_override_la_LIBADD += -ldl
 
-liblelyco_val_override_la_CPPFLAGS = -I$(top_srcdir)/include
+liblelyco_val_override_la_CPPFLAGS = -I$(top_srcdir)/include -DLELY_ENABLE_SHARED
 liblelyco_val_override_la_SOURCES = $(liblelyco_val_override_src)
 
 OVERRIDE_LELY_CO_VAL_LIB += liblelyco_val_override.la
+endif
 endif
 
 # Utilities library tests
@@ -87,15 +89,25 @@ src_co_tests =
 src_co_tests += co/test-crc.cpp
 src_co_tests += co/test-dev.cpp
 src_co_tests += co/test-type.cpp
+if !ENABLE_SHARED
+src_co_tests += override/lelyco-val.c
+endif
 
 unit_test_co_SOURCES = tests-shared-main.cpp $(src_co_tests)
 unit_test_co_LDADD = $(LELY_LIBC_LIBS) $(LELY_UTIL_LIBS) $(LELY_CAN_LIBS) $(OVERRIDE_LELY_CO_VAL_LIB) $(LELY_CO_LIBS) $(CPPUTEST_LIBS)
+if !ENABLE_SHARED
+unit_test_co_LDFLAGS = -Wl,--wrap=co_val_read -Wl,--wrap=co_val_write
+endif
 
 # Compilation flags
 
 AM_CPPFLAGS = -I$(top_srcdir)/include
 AM_CPPFLAGS += -DTEST_SRCDIR=\"${srcdir}\" -DLELY_NO_CXX=1
 AM_CPPFLAGS += $(CPPUTEST_CFLAGS)
+
+if ENABLE_SHARED
+AM_CPPFLAGS += -DENABLE_SHARED
+endif
 
 if NO_UNIT_TESTS_MEMLEAK
 AM_CPPFLAGS += -DCPPUTEST_MEM_LEAK_DETECTION_DISABLED
