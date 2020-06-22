@@ -90,13 +90,17 @@ src_co_tests += co/test-crc.cpp
 src_co_tests += co/test-dev.cpp
 src_co_tests += co/test-type.cpp
 if !ENABLE_SHARED
+if !PLATFORM_WIN32
 src_co_tests += override/lelyco-val.c
+endif
 endif
 
 unit_test_co_SOURCES = tests-shared-main.cpp $(src_co_tests)
 unit_test_co_LDADD = $(LELY_LIBC_LIBS) $(LELY_UTIL_LIBS) $(LELY_CAN_LIBS) $(OVERRIDE_LELY_CO_VAL_LIB) $(LELY_CO_LIBS) $(CPPUTEST_LIBS)
 if !ENABLE_SHARED
+if !PLATFORM_WIN32
 unit_test_co_LDFLAGS = -Wl,--wrap=co_val_read -Wl,--wrap=co_val_write
+endif
 endif
 
 # Compilation flags
@@ -104,10 +108,6 @@ endif
 AM_CPPFLAGS = -I$(top_srcdir)/include
 AM_CPPFLAGS += -DTEST_SRCDIR=\"${srcdir}\" -DLELY_NO_CXX=1
 AM_CPPFLAGS += $(CPPUTEST_CFLAGS)
-
-if ENABLE_SHARED
-AM_CPPFLAGS += -DENABLE_SHARED
-endif
 
 if NO_UNIT_TESTS_MEMLEAK
 AM_CPPFLAGS += -DCPPUTEST_MEM_LEAK_DETECTION_DISABLED
