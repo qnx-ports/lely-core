@@ -19,12 +19,12 @@ test_cpputest_LDADD = $(CPPUTEST_LIBS)
 
 # Override library (lely-core)
 
-OVERRIDE_LELY_CO_VAL_LIB =
+LELY_OVERRIDE_CO_VAL_LIB =
 
 if !PLATFORM_WIN32
 if ENABLE_SHARED
 liblelyco_val_override_src =
-liblelyco_val_override_src += override/lelyco-val.c
+liblelyco_val_override_src += override/lelyco-val.cpp
 
 lib_LTLIBRARIES = liblelyco_val_override.la
 
@@ -36,7 +36,7 @@ liblelyco_val_override_la_LIBADD += -ldl
 liblelyco_val_override_la_CPPFLAGS = -I$(top_srcdir)/include -DLELY_ENABLE_SHARED
 liblelyco_val_override_la_SOURCES = $(liblelyco_val_override_src)
 
-OVERRIDE_LELY_CO_VAL_LIB += liblelyco_val_override.la
+LELY_OVERRIDE_CO_VAL_LIB += liblelyco_val_override.la
 endif
 endif
 
@@ -91,12 +91,12 @@ src_co_tests += co/test-dev.cpp
 src_co_tests += co/test-type.cpp
 if !PLATFORM_WIN32
 if !ENABLE_SHARED
-src_co_tests += override/lelyco-val.c
+src_co_tests += override/lelyco-val.cpp
 endif
 endif
 
 unit_test_co_SOURCES = tests-shared-main.cpp $(src_co_tests)
-unit_test_co_LDADD = $(LELY_LIBC_LIBS) $(LELY_UTIL_LIBS) $(LELY_CAN_LIBS) $(OVERRIDE_LELY_CO_VAL_LIB) $(LELY_CO_LIBS) $(CPPUTEST_LIBS)
+unit_test_co_LDADD = $(LELY_LIBC_LIBS) $(LELY_UTIL_LIBS) $(LELY_CAN_LIBS) $(LELY_OVERRIDE_CO_VAL_LIB) $(LELY_CO_LIBS) $(CPPUTEST_LIBS)
 if !PLATFORM_WIN32
 if !ENABLE_SHARED
 unit_test_co_LDFLAGS = -Wl,--wrap=co_val_read -Wl,--wrap=co_val_write

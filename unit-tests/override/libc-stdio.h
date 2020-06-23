@@ -20,6 +20,9 @@
  * limitations under the License.
  */
 
+#ifndef LELY_OVERRIDE_LIBC_STDIO_H_
+#define LELY_OVERRIDE_LIBC_STDIO_H_
+
 #include <stdio.h>
 
 #if defined(__MINGW32__) || __GNUC__ == 7 || __GNUC__ == 8
@@ -36,29 +39,28 @@
 /* snprintf() override */
 #if HAVE_SNPRINTF_OVERRIDE
 
-static int valid_calls_snprintf = -1; // -1 means no limit
+static int valid_calls_snprintf = -1;  // -1 means no limit
 
 #ifdef __GNUC__
-int snprintf(char *__restrict __s, size_t __maxlen,
-		const char *__restrict __format, ...) __THROWNL
-		__attribute__((__format__(__printf__, 3, 4)));
+int snprintf(char* __restrict __s, size_t __maxlen,
+             const char* __restrict __format, ...) __THROWNL
+    __attribute__((__format__(__printf__, 3, 4)));
 #endif
 
 int
-snprintf(char *s, size_t maxlen, const char *format, ...) __THROWNL
-{
-	if (valid_calls_snprintf == 0)
-		return -1;
+snprintf(char* s, size_t maxlen, const char* format, ...) __THROWNL {
+  if (valid_calls_snprintf == 0) return -1;
 
-	if (valid_calls_snprintf > 0)
-		--valid_calls_snprintf;
+  if (valid_calls_snprintf > 0) --valid_calls_snprintf;
 
-	va_list arg;
-	va_start(arg, format);
-	int ret = vsnprintf(s, maxlen, format, arg);
-	va_end(arg);
+  va_list arg;
+  va_start(arg, format);
+  int ret = vsnprintf(s, maxlen, format, arg);
+  va_end(arg);
 
-	return ret;
+  return ret;
 }
 #endif
 /* end of snprintf() override */
+
+#endif  // LELY_OVERRIDE_LIBC_STDIO_H_

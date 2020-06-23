@@ -27,4 +27,4 @@
 #define HAVE_LELY_OVERRIDE 1
 #endif
 
-#endif // !LELY_OVERRIDE_LELY_DEF_H_
+#endif  // !LELY_OVERRIDE_LELY_DEF_H_

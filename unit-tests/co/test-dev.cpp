@@ -28,7 +28,7 @@
 #include <lely/co/obj.h>
 #include <lely/util/errnum.h>
 
-#include "override/lelyco-val.h"
+#include "override/lelyco-val.hpp"
 
 TEST_GROUP(CO_DevInit){};
 
