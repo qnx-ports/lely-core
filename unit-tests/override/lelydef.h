@@ -23,7 +23,7 @@
 #ifndef LELY_OVERRIDE_LELYDEF_H_
 #define LELY_OVERRIDE_LELYDEF_H_
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__MINGW32__)
 #define HAVE_LELY_OVERRIDE 1
 #endif
 
