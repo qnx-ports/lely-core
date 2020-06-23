@@ -1,12 +1,12 @@
 
-#include "lelyco-val.h"
-
-#ifdef HAVE_LELY_OVERRIDE
-
-#ifdef LELY_ENABLE_SHARED
+#if defined(__GNUC__) && defined(LELY_ENABLE_SHARED)
 #define _GNU_SOURCE
 #include <dlfcn.h>
 #endif
+
+#include "lelyco-val.h"
+
+#ifdef HAVE_LELY_OVERRIDE
 
 int lely_override_co_val_read_vc = -1;
 int lely_override_co_val_write_vc = -1;
