@@ -61,8 +61,8 @@ __wrap_co_val_read(co_unsigned16_t type, void* val, const uint_least8_t* begin,
   if (LelyOverride::co_val_read_vc > 0) --LelyOverride::co_val_read_vc;
 
 #ifdef LELY_ENABLE_SHARED
-  co_val_read_t* orig_co_val_read;
-  *(void**)(&orig_co_val_read) = dlsym(RTLD_NEXT, "co_val_read");
+  co_val_read_t* const orig_co_val_read =
+      reinterpret_cast<co_val_read_t*>(dlsym(RTLD_NEXT, "co_val_read"));
   return orig_co_val_read(type, val, begin, end);
 #else
   return __real_co_val_read(type, val, begin, end);
@@ -84,8 +84,8 @@ __wrap_co_val_write(co_unsigned16_t type, const void* val, uint_least8_t* begin,
   if (LelyOverride::co_val_write_vc > 0) --LelyOverride::co_val_write_vc;
 
 #ifdef LELY_ENABLE_SHARED
-  co_val_write_t* orig_co_val_write;
-  *(void**)(&orig_co_val_write) = dlsym(RTLD_NEXT, "co_val_write");
+  co_val_write_t* const orig_co_val_write =
+      reinterpret_cast<co_val_write_t*>(dlsym(RTLD_NEXT, "co_val_write"));
   return orig_co_val_write(type, val, begin, end);
 #else
   return __real_co_val_write(type, val, begin, end);
