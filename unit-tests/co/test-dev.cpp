@@ -821,8 +821,8 @@ TEST(CO_Dev, CoDevReadSub_TooSmallBuffer) {
   co_obj_t* const obj = co_obj_create(0x1234);
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
 
-  const size_t BUF_SIZE = 7;
-  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x01, 0x00, 0x00, 0x00};
+  const size_t BUF_SIZE = 6;
+  uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x01, 0x00, 0x00};
 
   const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
