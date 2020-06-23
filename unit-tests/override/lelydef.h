@@ -20,33 +20,11 @@
  * limitations under the License.
  */
 
-#ifndef LELY_OVERRIDE_LELY_CO_VAL_H_
-#define LELY_OVERRIDE_LELY_CO_VAL_H_
+#ifndef LELY_OVERRIDE_LELYDEF_H_
+#define LELY_OVERRIDE_LELYDEF_H_
 
-#include "lelydef.h"
-
-#ifdef HAVE_LELY_OVERRIDE
-
-#include <lely/co/type.h>
-
-/**
- * Number of valid calls to co_val_read(), -1 means no limit.
- */
-extern int lely_override_co_val_read_vc;
-
-/**
- * Number of valid calls to co_val_write(), -1 means no limit.
- */
-extern int lely_override_co_val_write_vc;
-
-#ifdef __cplusplus
-namespace LelyOverride
-{
-int &co_val_read_vc = lely_override_co_val_read_vc;
-int &co_val_write_vc = lely_override_co_val_write_vc;
-} // namespace LelyOverride
+#if defined(__GNUC__)
+#define HAVE_LELY_OVERRIDE 1
 #endif
 
-#endif // HAVE_LELY_OVERRIDE
-
-#endif // !LELY_OVERRIDE_LELY_CO_VAL_H_
+#endif // !LELY_OVERRIDE_LELY_DEF_H_

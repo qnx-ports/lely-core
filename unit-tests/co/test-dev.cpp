@@ -28,9 +28,7 @@
 #include <lely/co/obj.h>
 #include <lely/util/errnum.h>
 
-#ifndef _WIN32
 #include "override/lelyco-val.h"
-#endif
 
 TEST_GROUP(CO_DevInit){};
 
@@ -144,7 +142,7 @@ TEST_GROUP(CO_Dev) {
   }
 
   TEST_SETUP() {
-#ifndef _WIN32
+#ifdef HAVE_LELY_OVERRIDE
     LelyOverride::co_val_read_vc = -1;
     LelyOverride::co_val_write_vc = -1;
 #endif
@@ -153,7 +151,7 @@ TEST_GROUP(CO_Dev) {
   }
 
   TEST_TEARDOWN() {
-#ifndef _WIN32
+#ifdef HAVE_LELY_OVERRIDE
     LelyOverride::co_val_read_vc = -1;
     LelyOverride::co_val_write_vc = -1;
 #endif
@@ -844,7 +842,7 @@ TEST(CO_Dev, CoDevReadSub_TooSmallForType) {
   CHECK_EQUAL(0, ret);
 }
 
-#ifndef _WIN32
+#ifdef HAVE_LELY_OVERRIDE
 TEST(CO_Dev, CoDevReadSub_ReadIdxFailed) {
   co_obj_t* const obj = co_obj_create(0x1234);
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
@@ -935,7 +933,7 @@ TEST(CO_Dev, CoDevWriteSub_NoSub) {
   CHECK_EQUAL(0, ret);
 }
 
-#ifndef _WIN32
+#ifdef HAVE_LELY_OVERRIDE
 TEST(CO_Dev, CoDevWriteSub_InitWriteFailed) {
   co_obj_t* const obj = co_obj_create(0x1234);
   co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
@@ -997,7 +995,7 @@ TEST(CO_Dev, CoDevWriteSub_TooSmallBuffer) {
   CheckBuffers(buf, test_buf, BUF_SIZE);
 }
 
-#ifndef _WIN32
+#ifdef HAVE_LELY_OVERRIDE
 TEST(CO_Dev, CoDevWriteSub_IdxWriteFailed) {
   co_obj_t* const obj = co_obj_create(0x1234);
   co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);

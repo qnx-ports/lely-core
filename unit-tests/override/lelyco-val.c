@@ -1,17 +1,15 @@
 
+#include "lelyco-val.h"
+
+#ifdef HAVE_LELY_OVERRIDE
+
 #ifdef LELY_ENABLE_SHARED
 #define _GNU_SOURCE
 #include <dlfcn.h>
 #endif
 
-#include "lelyco-val.h"
-
 int lely_override_co_val_read_vc = -1;
 int lely_override_co_val_write_vc = -1;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifdef LELY_ENABLE_SHARED
 typedef size_t co_val_read_t(co_unsigned16_t, void *, const uint_least8_t *,
@@ -75,6 +73,4 @@ __wrap_co_val_write(co_unsigned16_t type, const void *val, uint_least8_t *begin,
 #endif
 }
 
-#ifdef __cplusplus
-}
-#endif
+#endif // HAVE_LELY_OVERRIDE
