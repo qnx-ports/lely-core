@@ -32,7 +32,7 @@
 
 #include <lely/util/diag.h>
 
-#include "unit-tests/libc-overrides.hpp"
+#include "override/libc-stdio.hpp"
 
 TEST_GROUP(Util_Diag_Cmdname){};
 

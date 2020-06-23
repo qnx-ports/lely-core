@@ -23,7 +23,7 @@
 #ifndef LELY_OVERRIDE_LIBC_STDIO_H_
 #define LELY_OVERRIDE_LIBC_STDIO_H_
 
-#include <stdio.h>
+#include <cstdio>
 
 #if defined(__MINGW32__) || __GNUC__ == 7 || __GNUC__ == 8
 /* MinGW-w64 tests won't link properly - neither overriding with "strong"
