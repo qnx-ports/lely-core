@@ -144,7 +144,7 @@ TEST_GROUP(Util_Diag) {
 
   TEST_TEARDOWN() {
 #if HAVE_SNPRINTF_OVERRIDE
-    valid_calls_snprintf = -1;
+    LibCOverride::snprintf_vc = -1;
 #endif  // HAVE_SNPRINTF_OVERRIDE
   }
 };
@@ -171,7 +171,7 @@ TEST(Util_Diag, SnprintfFloc_NonemptyFilename) {
 TEST(Util_Diag, SnprintfFloc_NonemptyFilenameErrorInFilenameEncoding) {
   const floc at = {"nonempty.txt", 3, 14};
 
-  valid_calls_snprintf = 0;
+  LibCOverride::snprintf_vc = 0;
   const auto ret = snprintf_floc(buffer, BUF_SIZE, &at);
 
   CHECK_EQUAL(-1, ret);
@@ -181,7 +181,7 @@ TEST(Util_Diag, SnprintfFloc_NonemptyFilenameErrorInFilenameEncoding) {
 TEST(Util_Diag, SnprintfFloc_NonemptyFilenameErrorInLineEncoding) {
   const floc at = {"nonempty.txt", 3, 14};
 
-  valid_calls_snprintf = 1;
+  LibCOverride::snprintf_vc = 1;
   const auto ret = snprintf_floc(buffer, BUF_SIZE, &at);
 
   CHECK_EQUAL(-1, ret);
@@ -191,7 +191,7 @@ TEST(Util_Diag, SnprintfFloc_NonemptyFilenameErrorInLineEncoding) {
 TEST(Util_Diag, SnprintfFloc_NonemptyFilenameErrorInColumnEncoding) {
   const floc at = {"nonempty.txt", 3, 14};
 
-  valid_calls_snprintf = 2;
+  LibCOverride::snprintf_vc = 2;
   const auto ret = snprintf_floc(buffer, BUF_SIZE, &at);
 
   CHECK_EQUAL(-1, ret);
@@ -484,7 +484,7 @@ TEST_GROUP_BASE(Util_Diag_VsnprintfDiagAtWrapper, Util_Diag_Stderrhandler) {
     Util_Diag_Stderrhandler::teardown();
     snprintf(buffer, 1UL, "%s", "");
 #if HAVE_SNPRINTF_OVERRIDE
-    valid_calls_snprintf = -1;
+    LibCOverride::snprintf_vc = -1;
 #endif
   }
 };
@@ -509,7 +509,7 @@ TEST(Util_Diag_VsnprintfDiagAtWrapper, Errc0) {
 
 #if HAVE_SNPRINTF_OVERRIDE
 TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFail) {
-  valid_calls_snprintf = 0;
+  LibCOverride::snprintf_vc = 0;
 
   vsnprintf_diag_at_wrapper(buffer, BUFSIZ, ds, errc, &location, format.data(),
                             message.data(), errc);
@@ -518,7 +518,7 @@ TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFail) {
 }
 
 TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFailAfter1) {
-  valid_calls_snprintf = 1;
+  LibCOverride::snprintf_vc = 1;
 
   vsnprintf_diag_at_wrapper(buffer, BUFSIZ, ds, errc, &location, format.data(),
                             message.data(), errc);
@@ -527,7 +527,7 @@ TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFailAfter1) {
 }
 
 TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFailAfter2) {
-  valid_calls_snprintf = 2;
+  LibCOverride::snprintf_vc = 2;
 
   vsnprintf_diag_at_wrapper(buffer, BUFSIZ, ds, errc, &location, format.data(),
                             message.data(), errc);
@@ -536,7 +536,7 @@ TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFailAfter2) {
 }
 
 TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFailAfter3) {
-  valid_calls_snprintf = 3;
+  LibCOverride::snprintf_vc = 3;
 
   vsnprintf_diag_at_wrapper(buffer, BUFSIZ, ds, errc, &location, format.data(),
                             message.data(), errc);
@@ -545,7 +545,7 @@ TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFailAfter3) {
 }
 
 TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFailAfter4) {
-  valid_calls_snprintf = 4;
+  LibCOverride::snprintf_vc = 4;
 
   vsnprintf_diag_at_wrapper(buffer, BUFSIZ, ds, errc, &location, format.data(),
                             message.data(), errc);
@@ -554,7 +554,7 @@ TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFailAfter4) {
 }
 
 TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFailAfter5) {
-  valid_calls_snprintf = 5;
+  LibCOverride::snprintf_vc = 5;
 
   vsnprintf_diag_at_wrapper(buffer, BUFSIZ, ds, errc, &location, format.data(),
                             message.data(), errc);
@@ -564,7 +564,7 @@ TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFailAfter5) {
 }
 
 TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFailAfter6) {
-  valid_calls_snprintf = 6;
+  LibCOverride::snprintf_vc = 6;
 
   vsnprintf_diag_at_wrapper(buffer, BUFSIZ, ds, errc, &location, format.data(),
                             message.data(), errc);
@@ -834,7 +834,7 @@ TEST_GROUP_BASE(Util_Diag_VasprintfDiagAt, Util_Diag_Stderrhandler) {
   TEST_TEARDOWN() {
     Util_Diag_Stderrhandler::teardown();
 #if HAVE_SNPRINTF_OVERRIDE
-    valid_calls_snprintf = -1;
+    LibCOverride::snprintf_vc = -1;
 #endif
   }
 };
@@ -854,7 +854,7 @@ TEST(Util_Diag_VasprintfDiagAt, VasprintfDiagAt) {
 #if HAVE_SNPRINTF_OVERRIDE
 TEST(Util_Diag_VasprintfDiagAt, SnprintfFailAfter1) {
   char* buf_ptr = nullptr;
-  valid_calls_snprintf = 1;
+  LibCOverride::snprintf_vc = 1;
 
   int chars_written = vasprintf_diag_at_wrapper(
       &buf_ptr, ds, errc, &location, format.data(), message.data(), errc);
@@ -865,7 +865,7 @@ TEST(Util_Diag_VasprintfDiagAt, SnprintfFailAfter1) {
 
 TEST(Util_Diag_VasprintfDiagAt, SnprintfFailAfter6) {
   char* buf_ptr = buffer;
-  valid_calls_snprintf = 6;
+  LibCOverride::snprintf_vc = 6;
 
   int chars_written = vasprintf_diag_at_wrapper(
       &buf_ptr, ds, errc, &location, format.data(), message.data(), errc);

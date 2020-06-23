@@ -26,6 +26,7 @@
 
 #include "lelyco-val.hpp"
 
+/* co_val_read() and co_val_write() overrides */
 #ifdef HAVE_LELY_OVERRIDE
 
 int LelyOverride::co_val_read_vc = -1;
@@ -93,5 +94,7 @@ __wrap_co_val_write(co_unsigned16_t type, const void* val, uint_least8_t* begin,
 }
 
 }  // extern "C"
+
+/* end of co_val_read() and co_val_write() overrides */
 
 #endif  // HAVE_LELY_OVERRIDE

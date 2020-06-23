@@ -39,7 +39,12 @@
 /* snprintf() override */
 #if HAVE_SNPRINTF_OVERRIDE
 
-static int valid_calls_snprintf = -1;  // -1 means no limit
+namespace LibCOverride {
+/**
+ * Number of valid calls to snprintf(), -1 means no limit.
+ */
+static int snprintf_vc = -1;  // -1 means no limit
+}  // namespace LibCOverride
 
 #ifdef __GNUC__
 int snprintf(char* __restrict __s, size_t __maxlen,
@@ -49,9 +54,9 @@ int snprintf(char* __restrict __s, size_t __maxlen,
 
 int
 snprintf(char* s, size_t maxlen, const char* format, ...) __THROWNL {
-  if (valid_calls_snprintf == 0) return -1;
+  if (LibCOverride::snprintf_vc == 0) return -1;
 
-  if (valid_calls_snprintf > 0) --valid_calls_snprintf;
+  if (LibCOverride::snprintf_vc > 0) --LibCOverride::snprintf_vc;
 
   va_list arg;
   va_start(arg, format);
