@@ -26,9 +26,19 @@
 
 #include <lely/co/dev.h>
 #include <lely/co/obj.h>
+#include <lely/co/val.h>
 #include <lely/util/errnum.h>
 
 #include "override/lelyco-val.hpp"
+
+static void
+CheckBuffers(const uint_least8_t* buf1, const uint_least8_t* buf2,
+             const size_t n) {
+  for (size_t i = 0; i < n; ++i) {
+    const std::string check_text = "buf[" + std::to_string(i) + "]";
+    CHECK_EQUAL_TEXT(buf2[i], buf1[i], check_text.c_str());
+  }
+}
 
 TEST_GROUP(CO_DevInit){};
 
@@ -132,14 +142,6 @@ TEST(CO_DevInit, CODevDestroy_Null) { co_dev_destroy(nullptr); }
 
 TEST_GROUP(CO_Dev) {
   co_dev_t* dev = nullptr;
-
-  static void CheckBuffers(const uint_least8_t* buf1, const uint_least8_t* buf2,
-                           const size_t n) {
-    for (size_t i = 0; i < n; ++i) {
-      const std::string check_text = "buf[" + std::to_string(i) + "]";
-      CHECK_EQUAL_TEXT(buf2[i], buf1[i], check_text.c_str());
-    }
-  }
 
   TEST_SETUP() {
 #ifdef HAVE_LELY_OVERRIDE
@@ -1071,3 +1073,78 @@ TEST(CO_Dev, CoDevWriteSub_ValWriteFailed) {
   CheckBuffers(buf, test_buf, BUF_SIZE);
 }
 #endif
+
+TEST_GROUP(CO_DevDCF) {
+  co_dev_t* dev = nullptr;
+
+  static const size_t BUF_SIZE = 13;
+  const uint_least8_t buf[BUF_SIZE] = {
+      0x01, 0x00, 0x00, 0x00,  // number of sub-indexes
+      // value 1
+      0x34, 0x12,              // index
+      0xab,                    // subindex
+      0x02, 0x00, 0x00, 0x00,  // size
+      0x87, 0x09               // value
+  };
+
+  TEST_SETUP() {
+    dev = co_dev_create(0x01);
+    CHECK(dev != nullptr);
+
+    co_obj_t* const obj = co_obj_create(0x1234);
+    co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+    CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+    CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+  }
+
+  TEST_TEARDOWN() { co_dev_destroy(dev); }
+};
+
+TEST(CO_DevDCF, CoDevReadDef) {
+  co_unsigned16_t pmin = 0x0000;
+  co_unsigned16_t pmax = 0x0000;
+  void* ptr = nullptr;
+  co_val_init_dom(&ptr, NULL, BUF_SIZE);
+  memcpy(ptr, buf, BUF_SIZE);
+
+  const auto ret = co_dev_read_dcf(dev, &pmin, &pmax, &ptr);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(0x0987, co_dev_get_val_i16(dev, 0x1234, 0xab));
+  CHECK_EQUAL(0x1234, pmin);
+  CHECK_EQUAL(0x1234, pmax);
+}
+
+TEST(CO_DevDCF, CoDevReadDef_NullMinMax) {
+  void* ptr = nullptr;
+  co_val_init_dom(&ptr, NULL, BUF_SIZE);
+  memcpy(ptr, buf, BUF_SIZE);
+
+  const auto ret = co_dev_read_dcf(dev, nullptr, nullptr, &ptr);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(0x0987, co_dev_get_val_i16(dev, 0x1234, 0xab));
+}
+
+TEST(CO_DevDCF, CoDevReadDef_InvalidNumberOfSubIndexes) {
+  void* ptr = nullptr;
+  co_val_init_dom(&ptr, NULL, 2);
+
+  const auto ret = co_dev_read_dcf(dev, nullptr, nullptr, &ptr);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(0x0000, co_dev_get_val_i16(dev, 0x1234, 0xab));
+}
+
+TEST(CO_DevDCF, CoDevReadDef_InvaildSubIdx) {
+  void* ptr = nullptr;
+  co_val_init_dom(&ptr, NULL, 7);
+  memcpy(ptr, buf, 7);
+
+  const auto ret = co_dev_read_dcf(dev, nullptr, nullptr, &ptr);
+
+  CHECK_EQUAL(0, ret);
+  CHECK_EQUAL(0x0000, co_dev_get_val_i16(dev, 0x1234, 0xab));
+}
+
+TEST(CO_DevDCF, CoDevWriteDef) {}
