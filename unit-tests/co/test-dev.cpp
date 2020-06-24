@@ -24,9 +24,15 @@
 
 #include <CppUTest/TestHarness.h>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <lely/can/net.h>
 #include <lely/co/dev.h>
 #include <lely/co/obj.h>
 #include <lely/co/val.h>
+#include <lely/co/tpdo.h>
 #include <lely/util/errnum.h>
 
 #include "override/lelyco-val.hpp"
@@ -196,16 +202,25 @@ TEST(CO_Dev, CoDevSetId) {
 
 TEST(CO_Dev, CoDevSetId_CheckObj) {
   co_obj_t* const obj = co_obj_create(0x0000);
+#ifndef LELY_NO_CO_OBJ_LIMITS
   co_obj_t* const obj1 = co_obj_create(0x0001);
   co_obj_t* const obj2 = co_obj_create(0x1234);
+#endif
+#ifndef LELY_NO_CO_OBJ_DEFAULT
   co_obj_t* const obj3 = co_obj_create(0xffff);
+#endif
+#ifndef LELY_NO_CO_OBJ_LIMITS
   co_sub_t* const sub_min1 = co_sub_create(0x00, CO_DEFTYPE_INTEGER16);
   co_sub_t* const sub_min2 = co_sub_create(0x01, CO_DEFTYPE_INTEGER16);
   co_sub_t* const sub_max1 = co_sub_create(0x00, CO_DEFTYPE_INTEGER16);
   co_sub_t* const sub_max2 = co_sub_create(0x01, CO_DEFTYPE_INTEGER16);
+#endif
+#ifndef LELY_NO_CO_OBJ_DEFAULT
   co_sub_t* const sub_def1 = co_sub_create(0x00, CO_DEFTYPE_INTEGER16);
   co_sub_t* const sub_def2 = co_sub_create(0x01, CO_DEFTYPE_INTEGER16);
+#endif
 
+#ifndef LELY_NO_CO_OBJ_LIMITS
   const co_integer16_t min_val1 = 0x0;
   const co_integer16_t min_val2 = 0x0 + co_dev_get_id(dev);
   CHECK_EQUAL(2, co_sub_set_min(sub_min1, &min_val1, 2));
@@ -217,24 +232,34 @@ TEST(CO_Dev, CoDevSetId_CheckObj) {
   CHECK_EQUAL(2, co_sub_set_max(sub_max1, &max_val1, 2));
   CHECK_EQUAL(2, co_sub_set_max(sub_max2, &max_val2, 2));
   co_sub_set_flags(sub_max2, CO_OBJ_FLAGS_MAX_NODEID);
-
+#endif
+#ifndef LELY_NO_CO_OBJ_DEFAULT
   const co_integer16_t def_val1 = 0x1234;
   const co_integer16_t def_val2 = 0x1234 + co_dev_get_id(dev);
   CHECK_EQUAL(2, co_sub_set_def(sub_def1, &def_val1, 2));
   CHECK_EQUAL(2, co_sub_set_def(sub_def2, &def_val2, 2));
   co_sub_set_flags(sub_def2, CO_OBJ_FLAGS_DEF_NODEID);
+#endif
 
+#ifndef LELY_NO_CO_OBJ_LIMITS
   CHECK_EQUAL(0, co_obj_insert_sub(obj1, sub_min1));
   CHECK_EQUAL(0, co_obj_insert_sub(obj1, sub_min2));
   CHECK_EQUAL(0, co_obj_insert_sub(obj2, sub_max1));
   CHECK_EQUAL(0, co_obj_insert_sub(obj2, sub_max2));
+#endif
+#ifndef LELY_NO_CO_OBJ_DEFAULT
   CHECK_EQUAL(0, co_obj_insert_sub(obj3, sub_def1));
   CHECK_EQUAL(0, co_obj_insert_sub(obj3, sub_def2));
+#endif
 
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+#ifndef LELY_NO_CO_OBJ_LIMITS
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj1));
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj2));
+#endif
+#ifndef LELY_NO_CO_OBJ_DEFAULT
   CHECK_EQUAL(0, co_dev_insert_obj(dev, obj3));
+#endif
 
   const co_unsigned8_t new_id = 0x3d;
 
@@ -243,27 +268,30 @@ TEST(CO_Dev, CoDevSetId_CheckObj) {
   CHECK_EQUAL(0, ret);
   CHECK_EQUAL(new_id, co_dev_get_id(dev));
 
-  const co_obj_t* const out_obj = co_dev_first_obj(dev);
+#if !defined(LELY_NO_CO_OBJ_LIMITS) || !defined(LELY_NO_CO_OBJ_DEFAULT)
+  const co_obj_t* out_obj = co_dev_first_obj(dev);
+#endif
 
-  const co_obj_t* const out_obj_min = co_obj_next(out_obj);
+#ifndef LELY_NO_CO_OBJ_LIMITS
+  out_obj = co_obj_next(out_obj);
   CHECK_EQUAL(0x0, *static_cast<const co_integer16_t*>(
-                       co_sub_get_min(co_obj_first_sub(out_obj_min))));
+                       co_sub_get_min(co_obj_first_sub(out_obj))));
   CHECK_EQUAL(0x0 + new_id, *static_cast<const co_integer16_t*>(
-                                co_sub_get_min(co_obj_last_sub(out_obj_min))));
+                                co_sub_get_min(co_obj_last_sub(out_obj))));
 
-  const co_obj_t* const out_obj_max = co_obj_next(out_obj_min);
+  out_obj = co_obj_next(out_obj);
   CHECK_EQUAL(0x3f00, *static_cast<const co_integer16_t*>(
-                          co_sub_get_max(co_obj_first_sub(out_obj_max))));
-  CHECK_EQUAL(0x3f00 + new_id,
-              *static_cast<const co_integer16_t*>(
-                  co_sub_get_max(co_obj_last_sub(out_obj_max))));
-
-  const co_obj_t* const out_obj_def = co_obj_next(out_obj_max);
+                          co_sub_get_max(co_obj_first_sub(out_obj))));
+  CHECK_EQUAL(0x3f00 + new_id, *static_cast<const co_integer16_t*>(
+                                   co_sub_get_max(co_obj_last_sub(out_obj))));
+#endif
+#ifndef LELY_NO_CO_OBJ_DEFAULT
+  out_obj = co_obj_next(out_obj);
   CHECK_EQUAL(0x1234, *static_cast<const co_integer16_t*>(
-                          co_sub_get_def(co_obj_first_sub(out_obj_def))));
-  CHECK_EQUAL(0x1234 + new_id,
-              *static_cast<const co_integer16_t*>(
-                  co_sub_get_def(co_obj_last_sub(out_obj_def))));
+                          co_sub_get_def(co_obj_first_sub(out_obj))));
+  CHECK_EQUAL(0x1234 + new_id, *static_cast<const co_integer16_t*>(
+                                   co_sub_get_def(co_obj_last_sub(out_obj))));
+#endif
 }
 
 #define LELY_CO_DEFINE_TYPE(a, b, c, d) \
@@ -1187,3 +1215,69 @@ TEST(CO_DevDCF, CoDevWriteDef_AfterMax) {
 
   co_val_fini(CO_DEFTYPE_DOMAIN, &ptr);
 }
+
+#ifndef LELY_NO_CO_TPDO
+namespace CO_DevTPDO_Static {
+static unsigned int tpdo_event_ind_counter = 0;
+}  // namespace CO_DevTPDO_Static
+
+TEST_GROUP(CO_DevTPDO) {
+  co_dev_t* dev = nullptr;
+
+  static void tpdo_event_ind(co_unsigned16_t, void*) {
+    ++CO_DevTPDO_Static::tpdo_event_ind_counter;
+  }
+
+  TEST_SETUP() {
+    dev = co_dev_create(0x01);
+    CHECK(dev != nullptr);
+
+    CO_DevTPDO_Static::tpdo_event_ind_counter = 0;
+  }
+
+  TEST_TEARDOWN() { co_dev_destroy(dev); }
+};
+
+TEST(CO_DevTPDO, CoDevGetTpdoEventInd_Null) {
+  co_dev_get_tpdo_event_ind(dev, nullptr, nullptr);
+}
+
+TEST(CO_DevTPDO, CoDevSetTpdoEventInd) {
+  int data = 42;
+  co_dev_set_tpdo_event_ind(dev, tpdo_event_ind, &data);
+
+  co_dev_tpdo_event_ind_t* ind_ptr = nullptr;
+  void* data_ptr = nullptr;
+  co_dev_get_tpdo_event_ind(dev, &ind_ptr, &data_ptr);
+  FUNCTIONPOINTERS_EQUAL(tpdo_event_ind, ind_ptr);
+  POINTERS_EQUAL(&data, data_ptr);
+}
+
+TEST(CO_DevTPDO, CoDevTpdoEvent_Empty) { co_dev_tpdo_event(dev, 0x0000, 0x00); }
+
+TEST(CO_DevTPDO, CoDevTpdoEvent_OnlySubNoMapping) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+  co_dev_set_tpdo_event_ind(dev, tpdo_event_ind, nullptr);
+
+  co_dev_tpdo_event(dev, 0x1234, 0xab);
+  CHECK_EQUAL(0, CO_DevTPDO_Static::tpdo_event_ind_counter);
+}
+
+TEST(CO_DevTPDO, CoDevTpdoEvent_MappingPossibleButNoMapping) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+  co_sub_set_pdo_mapping(sub, 1);
+  co_dev_set_tpdo_event_ind(dev, tpdo_event_ind, nullptr);
+
+  co_dev_tpdo_event(dev, 0x1234, 0xab);
+  CHECK_EQUAL(0, CO_DevTPDO_Static::tpdo_event_ind_counter);
+}
+
+// TODO: missing co_dev_tpdo_event() tests
+
+#endif  // !LELY_NO_CO_TPDO
