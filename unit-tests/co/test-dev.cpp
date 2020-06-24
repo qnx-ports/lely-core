@@ -980,6 +980,22 @@ TEST(CO_Dev, CoDevWriteSub_InitWriteFailed) {
 }
 #endif
 
+TEST(CO_Dev, CoDevWriteSub_EmptyDomain) {
+  co_obj_t* const obj = co_obj_create(0x1234);
+  co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_DOMAIN);
+  CHECK_EQUAL(0, co_obj_insert_sub(obj, sub));
+  CHECK_EQUAL(0, co_dev_insert_obj(dev, obj));
+
+  const size_t BUF_SIZE = 7;
+  uint_least8_t buf[BUF_SIZE] = {0};
+
+  const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
+
+  CHECK_EQUAL(7, ret);
+  uint_least8_t test_buf[] = {0x34, 0x12, 0xab, 0x00, 0x00, 0x00, 0x00};
+  CheckBuffers(buf, test_buf, BUF_SIZE);
+}
+
 TEST(CO_Dev, CoDevWriteSub_NoBegin) {
   co_obj_t* const obj = co_obj_create(0x1234);
   co_sub_t* const sub = co_sub_create(0xab, CO_DEFTYPE_INTEGER16);
