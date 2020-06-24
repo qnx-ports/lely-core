@@ -1278,6 +1278,6 @@ TEST(CO_DevTPDO, CoDevTpdoEvent_MappingPossibleButNoMapping) {
   CHECK_EQUAL(0, CO_DevTPDO_Static::tpdo_event_ind_counter);
 }
 
-// TODO: missing co_dev_tpdo_event() tests
+// TODO(tph): missing co_dev_tpdo_event() tests
 
 #endif  // !LELY_NO_CO_TPDO
