@@ -1113,6 +1113,8 @@ TEST(CO_DevDCF, CoDevReadDef) {
   CHECK_EQUAL(0x0987, co_dev_get_val_i16(dev, 0x1234, 0xab));
   CHECK_EQUAL(0x1234, pmin);
   CHECK_EQUAL(0x1234, pmax);
+
+  co_val_fini(CO_DEFTYPE_DOMAIN, &ptr);
 }
 
 TEST(CO_DevDCF, CoDevReadDef_NullMinMax) {
@@ -1124,6 +1126,8 @@ TEST(CO_DevDCF, CoDevReadDef_NullMinMax) {
 
   CHECK_EQUAL(0, ret);
   CHECK_EQUAL(0x0987, co_dev_get_val_i16(dev, 0x1234, 0xab));
+
+  co_val_fini(CO_DEFTYPE_DOMAIN, &ptr);
 }
 
 TEST(CO_DevDCF, CoDevReadDef_InvalidNumberOfSubIndexes) {
@@ -1134,6 +1138,8 @@ TEST(CO_DevDCF, CoDevReadDef_InvalidNumberOfSubIndexes) {
 
   CHECK_EQUAL(0, ret);
   CHECK_EQUAL(0x0000, co_dev_get_val_i16(dev, 0x1234, 0xab));
+
+  co_val_fini(CO_DEFTYPE_DOMAIN, &ptr);
 }
 
 TEST(CO_DevDCF, CoDevReadDef_InvaildSubIdx) {
@@ -1145,6 +1151,8 @@ TEST(CO_DevDCF, CoDevReadDef_InvaildSubIdx) {
 
   CHECK_EQUAL(0, ret);
   CHECK_EQUAL(0x0000, co_dev_get_val_i16(dev, 0x1234, 0xab));
+
+  co_val_fini(CO_DEFTYPE_DOMAIN, &ptr);
 }
 
 TEST(CO_DevDCF, CoDevWriteDef) {}
