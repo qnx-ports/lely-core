@@ -1155,4 +1155,35 @@ TEST(CO_DevDCF, CoDevReadDef_InvaildSubIdx) {
   co_val_fini(CO_DEFTYPE_DOMAIN, &ptr);
 }
 
-TEST(CO_DevDCF, CoDevWriteDef) {}
+TEST(CO_DevDCF, CoDevWriteDef) {
+  co_dev_set_val_i16(dev, 0x1234, 0xab, 0x0987);
+  void* ptr = nullptr;
+
+  const auto ret =
+      co_dev_write_dcf(dev, CO_UNSIGNED16_MIN, CO_UNSIGNED16_MAX, &ptr);
+
+  CHECK_EQUAL(0, ret);
+  CheckBuffers(static_cast<uint_least8_t*>(ptr), buf, BUF_SIZE);
+
+  co_val_fini(CO_DEFTYPE_DOMAIN, &ptr);
+}
+
+TEST(CO_DevDCF, CoDevWriteDef_BeforeMin) {
+  void* ptr = nullptr;
+
+  const auto ret = co_dev_write_dcf(dev, 0x1235, CO_UNSIGNED16_MAX, &ptr);
+
+  CHECK_EQUAL(0, ret);
+
+  co_val_fini(CO_DEFTYPE_DOMAIN, &ptr);
+}
+
+TEST(CO_DevDCF, CoDevWriteDef_AfterMax) {
+  void* ptr = nullptr;
+
+  const auto ret = co_dev_write_dcf(dev, CO_UNSIGNED16_MIN, 0x1233, &ptr);
+
+  CHECK_EQUAL(0, ret);
+
+  co_val_fini(CO_DEFTYPE_DOMAIN, &ptr);
+}
