@@ -20,11 +20,22 @@
  * limitations under the License.
  */
 
-#ifndef LELY_OVERRIDE_LELYDEF_H_
-#define LELY_OVERRIDE_LELYDEF_H_
+#ifndef LELY_OVERRIDE_LIBC_DEFS_HPP_
+#define LELY_OVERRIDE_LIBC_DEFS_HPP_
 
 #if defined(__GNUC__) && !defined(__MINGW32__)
-#define HAVE_LELY_OVERRIDE 1
+/* libc overrides won't link properly on MinGW-W64 */
+#define HAVE_LIBC_OVERRIDE 1
 #endif
 
-#endif  // !LELY_OVERRIDE_LELY_DEF_H_
+#if HAVE_LIBC_OVERRIDE
+namespace LibCOverride {
+/**
+ * Enumeration of libc function override parameters.
+ */
+enum : int { AllCallsValid = -1, NoneCallsValid = 0 };
+
+}  // namespace LibCOverride
+#endif
+
+#endif  // !LELY_OVERRIDE_LIBC_DEFS_HPP_

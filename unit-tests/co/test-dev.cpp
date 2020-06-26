@@ -151,8 +151,8 @@ TEST_GROUP(CO_Dev) {
 
   TEST_SETUP() {
 #ifdef HAVE_LELY_OVERRIDE
-    LelyOverride::co_val_read_vc = -1;
-    LelyOverride::co_val_write_vc = -1;
+    LelyOverride::co_val_read_vc = LelyOverride::AllCallsValid;
+    LelyOverride::co_val_write_vc = LelyOverride::AllCallsValid;
 #endif
     dev = co_dev_create(0x01);
     CHECK(dev != nullptr);
@@ -160,8 +160,8 @@ TEST_GROUP(CO_Dev) {
 
   TEST_TEARDOWN() {
 #ifdef HAVE_LELY_OVERRIDE
-    LelyOverride::co_val_read_vc = -1;
-    LelyOverride::co_val_write_vc = -1;
+    LelyOverride::co_val_read_vc = LelyOverride::AllCallsValid;
+    LelyOverride::co_val_write_vc = LelyOverride::AllCallsValid;
 #endif
     co_dev_destroy(dev);
   }
@@ -880,7 +880,7 @@ TEST(CO_Dev, CoDevReadSub_ReadIdxFailed) {
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0x34, 0x12, 0xab, 0x02, 0x00,
                                  0x00, 0x00, 0x87, 0x09};
-  LelyOverride::co_val_read_vc = 0;
+  LelyOverride::co_val_read_vc = LelyOverride::NoneCallsValid;
 
   const auto ret = co_dev_read_sub(dev, nullptr, nullptr, buf, buf + BUF_SIZE);
 
@@ -972,7 +972,7 @@ TEST(CO_Dev, CoDevWriteSub_InitWriteFailed) {
 
   const size_t BUF_SIZE = 9;
   uint_least8_t buf[BUF_SIZE] = {0};
-  LelyOverride::co_val_write_vc = 0;
+  LelyOverride::co_val_write_vc = LelyOverride::NoneCallsValid;
 
   const auto ret = co_dev_write_sub(dev, 0x1234, 0xab, buf, buf + BUF_SIZE);
 

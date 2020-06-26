@@ -144,7 +144,7 @@ TEST_GROUP(Util_Diag) {
 
   TEST_TEARDOWN() {
 #if HAVE_SNPRINTF_OVERRIDE
-    LibCOverride::snprintf_vc = -1;
+    LibCOverride::snprintf_vc = LibCOverride::AllCallsValid;
 #endif  // HAVE_SNPRINTF_OVERRIDE
   }
 };
@@ -171,7 +171,7 @@ TEST(Util_Diag, SnprintfFloc_NonemptyFilename) {
 TEST(Util_Diag, SnprintfFloc_NonemptyFilenameErrorInFilenameEncoding) {
   const floc at = {"nonempty.txt", 3, 14};
 
-  LibCOverride::snprintf_vc = 0;
+  LibCOverride::snprintf_vc = LibCOverride::NoneCallsValid;
   const auto ret = snprintf_floc(buffer, BUF_SIZE, &at);
 
   CHECK_EQUAL(-1, ret);
@@ -484,7 +484,7 @@ TEST_GROUP_BASE(Util_Diag_VsnprintfDiagAtWrapper, Util_Diag_Stderrhandler) {
     Util_Diag_Stderrhandler::teardown();
     snprintf(buffer, 1UL, "%s", "");
 #if HAVE_SNPRINTF_OVERRIDE
-    LibCOverride::snprintf_vc = -1;
+    LibCOverride::snprintf_vc = LibCOverride::AllCallsValid;
 #endif
   }
 };
@@ -509,7 +509,7 @@ TEST(Util_Diag_VsnprintfDiagAtWrapper, Errc0) {
 
 #if HAVE_SNPRINTF_OVERRIDE
 TEST(Util_Diag_VsnprintfDiagAtWrapper, SnprintfFail) {
-  LibCOverride::snprintf_vc = 0;
+  LibCOverride::snprintf_vc = LibCOverride::NoneCallsValid;
 
   vsnprintf_diag_at_wrapper(buffer, BUFSIZ, ds, errc, &location, format.data(),
                             message.data(), errc);
@@ -834,7 +834,7 @@ TEST_GROUP_BASE(Util_Diag_VasprintfDiagAt, Util_Diag_Stderrhandler) {
   TEST_TEARDOWN() {
     Util_Diag_Stderrhandler::teardown();
 #if HAVE_SNPRINTF_OVERRIDE
-    LibCOverride::snprintf_vc = -1;
+    LibCOverride::snprintf_vc = LibCOverride::AllCallsValid;
 #endif
   }
 };

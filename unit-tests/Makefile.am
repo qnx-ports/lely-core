@@ -33,7 +33,7 @@ liblelyco_val_override_la_LDFLAGS += -Wl,--as-needed
 liblelyco_val_override_la_LIBADD =
 liblelyco_val_override_la_LIBADD += -ldl
 
-liblelyco_val_override_la_CPPFLAGS = -I$(top_srcdir)/include -DLELY_ENABLE_SHARED
+liblelyco_val_override_la_CPPFLAGS = -I$(top_srcdir)/include -DLELY_ENABLE_SHARED=1
 liblelyco_val_override_la_SOURCES = $(liblelyco_val_override_src)
 
 LELY_OVERRIDE_CO_VAL_LIB += liblelyco_val_override.la
@@ -109,6 +109,9 @@ endif
 
 AM_CPPFLAGS = -I$(top_srcdir)/include
 AM_CPPFLAGS += -DTEST_SRCDIR=\"${srcdir}\" -DLELY_NO_CXX=1
+if ENABLE_SHARED
+AM_CPPFLAGS += -DLELY_ENABLE_SHARED=1
+endif
 AM_CPPFLAGS += $(CPPUTEST_CFLAGS)
 
 if NO_UNIT_TESTS_MEMLEAK

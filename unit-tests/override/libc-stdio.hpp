@@ -23,29 +23,33 @@
 #ifndef LELY_OVERRIDE_LIBC_STDIO_H_
 #define LELY_OVERRIDE_LIBC_STDIO_H_
 
+#include "override/libc-defs.hpp"
+
+#if HAVE_LIBC_OVERRIDE
+
 #include <cstdio>
 
-#if defined(__MINGW32__) || __GNUC__ == 7 || __GNUC__ == 8
-/* MinGW-w64 tests won't link properly - neither overriding with "strong"
- * symbol nor using --wrap linker option works.
- *
- * Overriding also does not work on GCC 7/8 with -fprintf-return-value
+#if (__GNUC__ != 7) && (__GNUC__ != 8)
+/* Overriding does not work on GCC 7 and 8 with -fprintf-return-value
  * optimization enabled (default) when using shared libraries.
  */
-#else
 #define HAVE_SNPRINTF_OVERRIDE 1
 #endif
 
-/* snprintf() override */
-#if HAVE_SNPRINTF_OVERRIDE
-
-namespace LibCOverride {
 /**
- * Number of valid calls to snprintf(), -1 means no limit.
+ * Override parameters.
  */
-static int snprintf_vc = -1;  // -1 means no limit
+namespace LibCOverride {
+#if HAVE_SNPRINTF_OVERRIDE
+/**
+ * Number of valid calls to snprintf().
+ */
+static int snprintf_vc = AllCallsValid;
+#endif
 }  // namespace LibCOverride
 
+/* snprintf() override */
+#if HAVE_SNPRINTF_OVERRIDE
 #ifdef __GNUC__
 int snprintf(char* __restrict __s, size_t __maxlen,
              const char* __restrict __format, ...) __THROWNL
@@ -54,9 +58,10 @@ int snprintf(char* __restrict __s, size_t __maxlen,
 
 int
 snprintf(char* s, size_t maxlen, const char* format, ...) __THROWNL {
-  if (LibCOverride::snprintf_vc == 0) return -1;
+  if (LibCOverride::snprintf_vc == LibCOverride::NoneCallsValid) return -1;
 
-  if (LibCOverride::snprintf_vc > 0) --LibCOverride::snprintf_vc;
+  if (LibCOverride::snprintf_vc > LibCOverride::NoneCallsValid)
+    --LibCOverride::snprintf_vc;
 
   va_list arg;
   va_start(arg, format);
@@ -65,7 +70,9 @@ snprintf(char* s, size_t maxlen, const char* format, ...) __THROWNL {
 
   return ret;
 }
-#endif
+#endif  // HAVE_SNPRINTF_OVERRIDE
 /* end of snprintf() override */
+
+#endif  // HAVE_LIBC_OVERRIDE
 
 #endif  // LELY_OVERRIDE_LIBC_STDIO_H_

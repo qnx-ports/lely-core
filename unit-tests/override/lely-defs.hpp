@@ -20,28 +20,25 @@
  * limitations under the License.
  */
 
-#ifndef LELY_OVERRIDE_LELY_CO_VAL_H_
-#define LELY_OVERRIDE_LELY_CO_VAL_H_
+#ifndef LELY_OVERRIDE_LELY_DEFS_HPP_
+#define LELY_OVERRIDE_LELY_DEFS_HPP_
 
-#include "override/lely-defs.hpp"
+#if defined(__GNUC__) && !defined(__MINGW32__)
+/* Override library uses GCC-only features. At the same time MinGW-w64 tests
+ * won't link properly - neither overriding with "strong" symbol nor using
+ * --wrap linker option works.
+ */
+#define HAVE_LELY_OVERRIDE 1
+#endif
 
 #ifdef HAVE_LELY_OVERRIDE
-
-#include <lely/co/type.h>
-
 namespace LelyOverride {
 /**
- * Number of valid calls to co_val_read(), -1 means no limit.
+ * Enumeration of lely-core function override parameters.
  */
-extern int co_val_read_vc;
-
-/**
- * Number of valid calls to co_val_write(), -1 means no limit.
- */
-extern int co_val_write_vc;
+enum : int { AllCallsValid = -1, NoneCallsValid = 0 };
 
 }  // namespace LelyOverride
+#endif
 
-#endif  // HAVE_LELY_OVERRIDE
-
-#endif  // !LELY_OVERRIDE_LELY_CO_VAL_H_
+#endif  // !LELY_OVERRIDE_LELY_DEFS_HPP_

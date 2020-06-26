@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#if defined(__GNUC__) && defined(LELY_ENABLE_SHARED)
+#if defined(__GNUC__) && LELY_ENABLE_SHARED
 #include <dlfcn.h>
 #endif
 
@@ -29,12 +29,12 @@
 /* co_val_read() and co_val_write() overrides */
 #ifdef HAVE_LELY_OVERRIDE
 
-int LelyOverride::co_val_read_vc = -1;
-int LelyOverride::co_val_write_vc = -1;
+int LelyOverride::co_val_read_vc = LelyOverride::AllCallsValid;
+int LelyOverride::co_val_write_vc = LelyOverride::AllCallsValid;
 
 extern "C" {
 
-#ifdef LELY_ENABLE_SHARED
+#if LELY_ENABLE_SHARED
 typedef size_t co_val_read_t(co_unsigned16_t, void*, const uint_least8_t*,
                              const uint_least8_t*);
 typedef size_t co_val_write_t(co_unsigned16_t, const void*, uint_least8_t*,
@@ -47,7 +47,7 @@ extern size_t __real_co_val_write(co_unsigned16_t type, const void* val,
                                   uint_least8_t* begin, uint_least8_t* end);
 #endif
 
-#ifdef LELY_ENABLE_SHARED
+#if LELY_ENABLE_SHARED
 size_t
 co_val_read(co_unsigned16_t type, void* val, const uint_least8_t* begin,
             const uint_least8_t* end)
@@ -57,11 +57,12 @@ __wrap_co_val_read(co_unsigned16_t type, void* val, const uint_least8_t* begin,
                    const uint_least8_t* end)
 #endif
 {
-  if (LelyOverride::co_val_read_vc == 0) return 0;
+  if (LelyOverride::co_val_read_vc == LelyOverride::NoneCallsValid) return 0;
 
-  if (LelyOverride::co_val_read_vc > 0) --LelyOverride::co_val_read_vc;
+  if (LelyOverride::co_val_read_vc > LelyOverride::NoneCallsValid)
+    --LelyOverride::co_val_read_vc;
 
-#ifdef LELY_ENABLE_SHARED
+#if LELY_ENABLE_SHARED
   co_val_read_t* const orig_co_val_read =
       reinterpret_cast<co_val_read_t*>(dlsym(RTLD_NEXT, "co_val_read"));
   return orig_co_val_read(type, val, begin, end);
@@ -70,7 +71,7 @@ __wrap_co_val_read(co_unsigned16_t type, void* val, const uint_least8_t* begin,
 #endif
 }
 
-#ifdef LELY_ENABLE_SHARED
+#if LELY_ENABLE_SHARED
 size_t
 co_val_write(co_unsigned16_t type, const void* val, uint_least8_t* begin,
              uint_least8_t* end)
@@ -80,11 +81,12 @@ __wrap_co_val_write(co_unsigned16_t type, const void* val, uint_least8_t* begin,
                     uint_least8_t* end)
 #endif
 {
-  if (LelyOverride::co_val_write_vc == 0) return 0;
+  if (LelyOverride::co_val_write_vc == LelyOverride::NoneCallsValid) return 0;
 
-  if (LelyOverride::co_val_write_vc > 0) --LelyOverride::co_val_write_vc;
+  if (LelyOverride::co_val_write_vc > LelyOverride::NoneCallsValid)
+    --LelyOverride::co_val_write_vc;
 
-#ifdef LELY_ENABLE_SHARED
+#if LELY_ENABLE_SHARED
   co_val_write_t* const orig_co_val_write =
       reinterpret_cast<co_val_write_t*>(dlsym(RTLD_NEXT, "co_val_write"));
   return orig_co_val_write(type, val, begin, end);
