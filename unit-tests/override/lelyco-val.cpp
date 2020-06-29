@@ -20,14 +20,12 @@
  * limitations under the License.
  */
 
-#if defined(__GNUC__) && LELY_ENABLE_SHARED
-#include <dlfcn.h>
-#endif
-
 #include "lelyco-val.hpp"
 
 /* co_val_read() and co_val_write() overrides */
 #ifdef HAVE_LELY_OVERRIDE
+
+#include <dlfcn.h>
 
 int LelyOverride::co_val_read_vc = LelyOverride::AllCallsValid;
 int LelyOverride::co_val_write_vc = LelyOverride::AllCallsValid;

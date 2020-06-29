@@ -31,12 +31,12 @@
 
 namespace LelyOverride {
 /**
- * Number of valid calls to co_val_read(), -1 means no limit.
+ * Number of valid calls to co_val_read().
  */
 extern int co_val_read_vc;
 
 /**
- * Number of valid calls to co_val_write(), -1 means no limit.
+ * Number of valid calls to co_val_write().
  */
 extern int co_val_write_vc;
 
