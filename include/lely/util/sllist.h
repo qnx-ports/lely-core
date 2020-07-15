@@ -3,7 +3,7 @@
  * singly-<a href="https://en.wikipedia.org/wiki/Linked_list">linked list</a>
  * declarations.
  *
- * @copyright 2013-2019 Lely Industries N.V.
+ * @copyright 2013-2020 Lely Industries N.V.
  *
  * @author J. S. Seldenthuis <jseldenthuis@lely.com>
  *
@@ -174,25 +174,25 @@ struct slnode *sllist_last(const struct sllist *list);
  */
 #define sllist_foreach(list, node) slnode_foreach (sllist_first(list), node)
 
-inline void
+LELY_UTIL_SLLIST_INLINE void
 slnode_init(struct slnode *node)
 {
 	node->next = NULL;
 }
 
-inline void
+LELY_UTIL_SLLIST_INLINE void
 sllist_init(struct sllist *list)
 {
 	*(list->plast = &list->first) = NULL;
 }
 
-inline int
+LELY_UTIL_SLLIST_INLINE int
 sllist_empty(const struct sllist *list)
 {
 	return !list->first;
 }
 
-inline size_t
+LELY_UTIL_SLLIST_INLINE size_t
 sllist_size(const struct sllist *list)
 {
 	size_t size = 0;
@@ -201,7 +201,7 @@ sllist_size(const struct sllist *list)
 	return size;
 }
 
-inline void
+LELY_UTIL_SLLIST_INLINE void
 sllist_push_front(struct sllist *list, struct slnode *node)
 {
 	if (!(node->next = list->first))
@@ -209,7 +209,7 @@ sllist_push_front(struct sllist *list, struct slnode *node)
 	list->first = node;
 }
 
-inline void
+LELY_UTIL_SLLIST_INLINE void
 sllist_push_back(struct sllist *list, struct slnode *node)
 {
 	*list->plast = node;
@@ -217,7 +217,7 @@ sllist_push_back(struct sllist *list, struct slnode *node)
 	*list->plast = NULL;
 }
 
-inline struct slnode *
+LELY_UTIL_SLLIST_INLINE struct slnode *
 sllist_pop_front(struct sllist *list)
 {
 	struct slnode *node = list->first;
@@ -229,7 +229,7 @@ sllist_pop_front(struct sllist *list)
 	return node;
 }
 
-inline struct sllist *
+LELY_UTIL_SLLIST_INLINE struct sllist *
 sllist_append(struct sllist *dst, struct sllist *src)
 {
 	if (src->first) {
@@ -240,7 +240,7 @@ sllist_append(struct sllist *dst, struct sllist *src)
 	return dst;
 }
 
-inline struct slnode *
+LELY_UTIL_SLLIST_INLINE struct slnode *
 sllist_first(const struct sllist *list)
 {
 	return list->first;
