@@ -434,6 +434,44 @@ void co_obj_set_dn_ind(co_obj_t *obj, co_sub_dn_ind_t *ind, void *data);
  */
 void co_obj_set_up_ind(co_obj_t *obj, co_sub_up_ind_t *ind, void *data);
 
+/**
+ * Checks if the specified CANopen object is a valid single value of the
+ * specified type.
+ *
+ * @param obj  a pointer to a CANopen object (can be NULL).
+ * @param type the data type of the object.
+ *
+ * @returns <b>true</b> if the specified object is a valid VAR, and
+ *          <b>false</b> if not.
+ */
+bool co_obj_is_var(const co_obj_t *obj, co_unsigned16_t type);
+
+/**
+ * Checks if the specified CANopen object is a valid ARRAY according to CiA 301.
+ * RECORD objects with elements of the same data type are considered to be valid
+ * ARRAY objects.
+ *
+ * @param obj  a pointer to a CANopen object (can be NULL).
+ * @param type the data type of the ARRAY elements.
+ *
+ * @returns <b>true</b> if the specified object is a valid ARRAY, and
+ *          <b>false</b> if not.
+ */
+bool co_obj_is_array(const co_obj_t *obj, co_unsigned16_t type);
+
+/**
+ * Checks if the specified CANopen object is a valid RECORD according to CiA
+ * 301.
+ *
+ * @param obj  a pointer to a CANopen object (can be NULL).
+ * @param type the DEFSTRUCT record type. If <b>type</b> is 0, the record type
+ *             is not checked.
+ *
+ * @returns <b>true</b> if the specified object is a valid ARRAY, and
+ *          <b>false</b> if not.
+*/
+bool co_obj_is_record(const co_obj_t *obj, co_unsigned16_t type);
+
 #if !LELY_NO_MALLOC
 
 /**
