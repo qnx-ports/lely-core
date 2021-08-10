@@ -453,14 +453,8 @@ co_obj_is_array(const co_obj_t *obj, co_unsigned16_t type)
 	}
 
 	sub = co_obj_last_sub(obj);
-	// Sub-index 0xFF, if provided, contains the data type and object type
-	// encoded as UNSIGNED32
 	if (co_sub_get_subidx(sub) == 0xff) {
-		if (co_sub_get_type(sub) != CO_DEFTYPE_UNSIGNED32)
-			return false;
-		// Check the object type.
-		co_unsigned32_t val = co_sub_get_val_u32(sub);
-		if ((val & 0xff) != code)
+		if (!co_sub_is_desc(sub, code, 0))
 			return false;
 		// Sub-index 0xFF does not count as the highest supported
 		// sub-index.
@@ -490,17 +484,8 @@ co_obj_is_record(const co_obj_t *obj, co_unsigned16_t type)
 		return false;
 
 	sub = co_obj_last_sub(obj);
-	// Sub-index 0xFF, if provided, contains the data type and object type
-	// encoded as UNSIGNED32
 	if (co_sub_get_subidx(sub) == 0xff) {
-		if (co_sub_get_type(sub) != CO_DEFTYPE_UNSIGNED32)
-			return false;
-		// Check the object type.
-		const co_unsigned32_t val = co_sub_get_val_u32(sub);
-		if ((val & 0xff) != code)
-			return false;
-		// Check the data type.
-		if (type && ((val >> 8) & 0xffff) != type)
+		if (!co_sub_is_desc(sub, code, type))
 			return false;
 		// Sub-index 0xFF does not count as the highest supported
 		// sub-index.
@@ -1008,6 +993,29 @@ co_sub_set_dn_ind(co_sub_t *sub, co_sub_dn_ind_t *ind, void *data)
 
 	sub->dn_ind = ind ? ind : &co_sub_default_dn_ind;
 	sub->dn_data = ind ? data : NULL;
+}
+
+bool
+co_sub_is_desc(const co_sub_t *sub, co_unsigned8_t code, co_unsigned16_t type)
+{
+	assert(sub);
+
+	if (co_sub_get_subidx(sub) != 0xff)
+		return false;
+
+	// Sub-index 0xFF, if provided, contains the data type and object type
+	// encoded as UNSIGNED32
+	if (co_sub_get_type(sub) != CO_DEFTYPE_UNSIGNED32)
+		return false;
+	// Check the object type.
+	const co_unsigned32_t val = co_sub_get_val_u32(sub);
+	if ((val & 0xff) != code)
+		return false;
+	// Check the data type.
+	if (type && ((val >> 8) & 0xffff) != type)
+		return false;
+
+	return true;
 }
 
 int

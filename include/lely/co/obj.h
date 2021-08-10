@@ -894,6 +894,21 @@ void co_sub_get_dn_ind(
 void co_sub_set_dn_ind(co_sub_t *sub, co_sub_dn_ind_t *ind, void *data);
 
 /**
+ * Checks if the specified CANopen sub-object describes the structure of the
+ * object (containing the sub-object at sub-index 0xFF) by providing the data
+ * type and the object type of the object.
+ *
+ * @param sub  a pointer to a CANopen sub-object.
+ * @param code the object code of the object.
+ * @param type the data type of the object.
+ *
+ * @returns <b>true</b> if the specified object is a valid VAR, and
+ *          <b>false</b> if not.
+ */
+bool co_sub_is_desc(
+		const co_sub_t *sub, co_unsigned8_t code, co_unsigned16_t type);
+
+/**
  * Implements the default behavior when a download indication is received by a
  * CANopen sub-object. For a domain value with the #CO_OBJ_FLAGS_DOWNLOAD_FILE
  * flag set, this function invokes co_sdo_req_dn_file() to write the value to
