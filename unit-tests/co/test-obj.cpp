@@ -1017,6 +1017,115 @@ TEST(CO_Obj, CoObjSetDnInd_NoSub) { co_obj_set_dn_ind(obj, nullptr, nullptr); }
 
 ///@}
 
+/// @name co_obj_is_var()
+///@{
+
+/// \Given N/A
+///
+/// \When calling co_obj_is_var() with NULL pointer and any type
+///
+/// \Then 0 is returned
+TEST(CO_Obj, CoObjIsVar_Null) {
+  CHECK_EQUAL(0u, co_obj_is_var(nullptr, CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an object (co_obj_t) with object code set to anything other
+///        than CO_OBJECT_VAR
+///
+/// \When calling co_obj_is_var() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+TEST(CO_Obj, CoObjIsVar_BadObjCode) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_NULL);
+
+  CHECK_EQUAL(0u, co_obj_is_var(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an object (co_obj_t) without any sub-objects
+///
+/// \When calling co_obj_is_var() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_first_sub()
+TEST(CO_Obj, CoObjIsVar_NoSubs) {
+  CoObjTHolder obj{OBJ_IDX};
+
+  CHECK_EQUAL(0u, co_obj_is_var(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an object (co_obj_t) with first sub-object not at sub-index 0x00
+///
+/// \When calling co_obj_is_var() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_first_sub()
+///       \Calls co_sub_get_subidx()
+TEST(CO_Obj, CoObjIsVar_BadFirstSubIdx) {
+  CoObjTHolder obj{OBJ_IDX};
+  obj.InsertAndSetSub(0x01u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(0u, co_obj_is_var(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an object (co_obj_t) with more than one sub-object
+///
+/// \When calling co_obj_is_var() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_first_sub()
+///       \Calls co_sub_get_subidx()
+///       \Calls co_obj_last_sub()
+TEST(CO_Obj, CoObjIsVar_TooManySubObjects) {
+  CoObjTHolder obj{OBJ_IDX};
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+  obj.InsertAndSetSub(0x01u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(0u, co_obj_is_var(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an object (co_obj_t) with single sub-object at sub-index 0x00
+///
+/// \When calling co_obj_is_var() with a pointer to the object and a type
+///       different then sub-object's type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_first_sub()
+///       \Calls co_sub_get_subidx()
+///       \Calls co_obj_last_sub()
+///       \Calls co_sub_get_type()
+TEST(CO_Obj, CoObjIsVar_DifferentType) {
+  CoObjTHolder obj{OBJ_IDX};
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(0u, co_obj_is_var(obj.Get(), CO_DEFTYPE_INTEGER32));
+}
+
+/// \Given an object (co_obj_t) with single sub-object at sub-index 0x00
+///
+/// \When calling co_obj_is_var() with a pointer to the object and type equal to
+///       the sub-object's type
+///
+/// \Then 1 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_first_sub()
+///       \Calls co_sub_get_subidx()
+///       \Calls co_obj_last_sub()
+///       \Calls co_sub_get_type()
+TEST(CO_Obj, CoObjIsVar_Nominal) {
+  CoObjTHolder obj{OBJ_IDX};
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(1u, co_obj_is_var(obj.Get(), CO_DEFTYPE_UNSIGNED16));
+}
+
+///@}
+
 #if !LELY_NO_CO_OBJ_UPLOAD
 
 /// @name co_obj_set_up_ind()
