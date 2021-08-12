@@ -1692,6 +1692,8 @@ co_csdo_up_ini_on_recv(co_csdo_t *sdo, const struct can_msg *msg)
 			sdo->size = msg->len - 4;
 	} else if (cs & CO_SDO_INI_SIZE_IND) {
 		sdo->size = ldle_u32(data);
+	} else {
+		return co_csdo_abort_res(sdo, CO_SDO_AC_TYPE_LEN);
 	}
 
 	// Allocate the buffer.

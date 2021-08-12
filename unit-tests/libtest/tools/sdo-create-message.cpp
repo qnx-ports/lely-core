@@ -210,8 +210,6 @@ SdoCreateMsg::UpIniResWithSize(const co_unsigned16_t idx,
                                const co_unsigned8_t subidx,
                                const uint_least32_t recipient_id,
                                const size_t size) {
-  if (size == 0) return UpIniRes(idx, subidx, recipient_id);
-
   std::vector<uint_least8_t> buf(4u);
   stle_u32(buf.data(), static_cast<co_unsigned32_t>(size));
 

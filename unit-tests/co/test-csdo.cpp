@@ -3652,8 +3652,8 @@ TEST(CO_Csdo, CoCsdoBlkUpIniOnRecv_ProtocolSwitch) {
   CanSend::CheckMsg(DEFAULT_COBID_REQ, 0, CO_SDO_MSG_SIZE, expected.data());
   CanSend::Clear();
 
-  const can_msg msg_res =
-      SdoCreateMsg::UpIniRes(IDX, SUBIDX, DEFAULT_COBID_RES);
+  const can_msg msg_res = SdoCreateMsg::UpIniResWithSize(
+      IDX, SUBIDX, DEFAULT_COBID_RES, sizeof(sub_type));
   CHECK_EQUAL(1, can_net_recv(net, &msg_res, 0));
 
   CHECK_EQUAL(1u, CanSend::GetNumCalled());
@@ -6046,6 +6046,15 @@ TEST(CO_CsdoUpload, IniOnRecv_IncorrectSubidx) {
   CHECK_EQUAL(1, can_net_recv(net, &msg, 0));
 
   CheckSdoAbortSent(CO_SDO_AC_ERROR);
+}
+
+/// TODO(N7S): GWT
+TEST(CO_CsdoUpload, IniOnRecv_NotExpedited_NoSizeInd) {
+  const can_msg msg =
+      SdoCreateMsg::UpIniRes(IDX, SUBIDX, DEFAULT_COBID_RES, 0u);
+  CHECK_EQUAL(1, can_net_recv(net, &msg, 0));
+
+  CheckSdoAbortSent(CO_SDO_AC_TYPE_LEN);
 }
 
 #if LELY_NO_MALLOC
