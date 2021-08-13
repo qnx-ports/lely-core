@@ -55,7 +55,7 @@ AM_CONDITIONAL([PLATFORM_POSIX], [test "$platform_posix" == "yes"])
 AM_CONDITIONAL([PLATFORM_WIN32], [test "$platform_win32" == "yes"])
 
 AS_IF([test "$host_cpu" != "$build_cpu"], [
-	AC_CHECK_PROGS([BINFMT_EXEC], [qemu-$host_cpu qemu-$host_cpu-static])
+	AC_CHECK_PROGS([BINFMT_EXEC], [qemu-$host_cpu qemu-$host_cpu-static qemu-system-$host_cpu])
 ])
 
 CFLAGS="$CFLAGS -Wall -Wextra -pedantic -Werror"
