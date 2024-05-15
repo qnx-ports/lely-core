@@ -43,10 +43,10 @@ def parse_file(filename: str) -> dict:
     __add_compact_rpdo(cfg)
     __add_compact_tpdo(cfg)
 
-    return cfg
+    return dict(cfg)
 
 
-def __add_compact_rpdo(cfg: dict):
+def __add_compact_rpdo(cfg: configparser.ConfigParser):
     if "DeviceInfo" not in cfg:
         return
     section = cfg["DeviceInfo"]
@@ -165,7 +165,7 @@ def __add_compact_rpdo(cfg: dict):
             obj["CompactSubObj"] = "0x40"
 
 
-def __add_compact_tpdo(cfg: dict):
+def __add_compact_tpdo(cfg: configparser.ConfigParser):
     if "DeviceInfo" not in cfg:
         return
     section = cfg["DeviceInfo"]
