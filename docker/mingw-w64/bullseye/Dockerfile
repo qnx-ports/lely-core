@@ -14,7 +14,7 @@ RUN apt-get update -q \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update -q \
-    && curl -L https://dl.winehq.org/wine-builds/winehq.key | apt-key add - \
+    && curl --proto "=https" -L https://dl.winehq.org/wine-builds/winehq.key | apt-key add - \
     && apt-add-repository 'deb https://dl.winehq.org/wine-builds/debian/ bullseye main' \
     && dpkg --add-architecture i386 \
     && apt-get update -q \
