@@ -377,7 +377,7 @@ can_crc_bytes(uint_least16_t crc, const unsigned char *bp, size_t n)
 	};
 	// clang-format on
 
-	while (n--) {
+	for (; n > 0; n--) {
 		const uint_least8_t index = *bp ^ (uint_least8_t)(crc >> 7);
 		const uint_least16_t lookup = tab[index & 0xffu];
 		crc = (uint_least16_t)(lookup ^ (uint_least16_t)(crc << 8))
