@@ -296,8 +296,8 @@ can_net_recv(can_net_t *net, const struct can_msg *msg,
 		// when the last receiver is removed from the list
 		// the list node is removed from RB-tree
 		// hence the loop will always iterate at least once
-		dlnode_foreach (&recv->list, node) { // LCOV_EXCL_BR_LINE
-			recv = structof(node, can_recv_t, list);
+		dlnode_foreach (&recv->list, list_node) { // LCOV_EXCL_BR_LINE
+			recv = structof(list_node, can_recv_t, list);
 			// Invoke the callback function and check the result.
 			if (recv->func && recv->func(msg, recv->data)
 					&& (result != -1)) {
@@ -666,13 +666,13 @@ can_net_fini(can_net_t *net)
 {
 	assert(net);
 
-	rbtree_foreach (&net->recv_tree, node) {
-		can_recv_t *recv = structof(node, can_recv_t, node);
+	rbtree_foreach (&net->recv_tree, tree_node) {
+		can_recv_t *recv = structof(tree_node, can_recv_t, node);
 		// when the last receiver is removed from the list
 		// the list node is removed from RB-tree
 		// hence the loop will always iterate at least once
-		dlnode_foreach (&recv->list, node) // LCOV_EXCL_BR_LINE
-			can_recv_stop(structof(node, can_recv_t, list));
+		dlnode_foreach (&recv->list, list_node) // LCOV_EXCL_BR_LINE
+			can_recv_stop(structof(list_node, can_recv_t, list));
 	}
 
 	struct pnode *node;

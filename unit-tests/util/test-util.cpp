@@ -126,7 +126,7 @@ TEST(Util_Util, Abs_Floats) {
 /// \Then the macro evaluates to the nearest multiple of base greater or equal
 ///       to the number
 TEST(Util_Util, Align_Base2SmallInts) {
-  int base = 2;
+  const int base = 2;
 
   CHECK_EQUAL(0, ALIGN(0, base));
   CHECK_EQUAL(2, ALIGN(1, base));
