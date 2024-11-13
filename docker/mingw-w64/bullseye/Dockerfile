@@ -6,11 +6,11 @@ RUN apt-get update -q \
     && DEBIAN_FRONTEND=noninteractive apt-get install -qy --no-install-recommends \
         apt-transport-https \
         build-essential \
+        ca-certificates \
         curl \
+        git \
         gnupg \
         software-properties-common \
-        ca-certificates \
-        git \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update -q \
