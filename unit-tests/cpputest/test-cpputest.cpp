@@ -97,13 +97,17 @@ TEST_GROUP(Module_SampleFunc) {
     test_str[idx] = c;
   }
 
-  /* test setup/teardown */
+  /* test setup */
   TEST_SETUP() {
     param.param1 = 0;
     param.param2 = nullptr;
   }
 
-  TEST_TEARDOWN(){};
+  /* test teardown */
+  TEST_TEARDOWN() {
+    /* cleanup, if needed  */
+    param.param2 = nullptr;
+  }
 };
 
 /* Tests SHOULD examine one aspect of a function. Each test will call
