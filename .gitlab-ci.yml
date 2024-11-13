@@ -728,6 +728,7 @@ sonarcloud:
            -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
            -Dsonar.cfamily.threads=1
            -Dsonar.python.version=3
+           -Dsonar.qualitygate.wait=true
   rules:
     - if: '$CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
       when: always
