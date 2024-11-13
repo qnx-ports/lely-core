@@ -2,7 +2,7 @@
  * This header file is part of the C++ CANopen application library; it contains
  * the CANopen slave declarations.
  *
- * @copyright 2018-2020 Lely Industries N.V.
+ * @copyright 2018-2024 Lely Industries N.V.
  *
  * @author J. S. Seldenthuis <jseldenthuis@lely.com>
  *
@@ -838,6 +838,9 @@ class BasicSlave : public Node {
   typename ::std::enable_if<is_canopen<T>::value>::type OnWrite(
       uint16_t idx, ::std::function<OnWriteSignature<T>> ind,
       ::std::error_code& ec);
+
+ protected:
+  using Device::OnWrite;
 
  private:
   /**

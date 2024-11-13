@@ -1,7 +1,7 @@
 /**@file
  * This file is part of the CANopen Library Unit Test Suite.
  *
- * @copyright 2020-2021 N7 Space Sp. z o.o.
+ * @copyright 2020-2024 N7 Space Sp. z o.o.
  *
  * Unit Test Suite was developed under a programme of,
  * and funded by, the European Space Agency.
@@ -25,6 +25,8 @@
 #endif
 
 #include <CppUTest/TestHarness.h>
+
+#include <cstdint>
 
 #include <lely/util/memory.h>
 #include <lely/util/error.h>
