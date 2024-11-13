@@ -536,6 +536,7 @@ lcov:
     - 'grep -q "lines......: 100.0%" coverage_summary.txt || { echo "Lines coverage dropped"; exit 1; }'
     - 'grep -q "branches...: 100.0%" coverage_summary.txt || { echo "Branches coverage dropped" ; exit 1; }'
     - cat coverage_summary.txt
+  coverage: '/branches\.\.\.: \d+(?:\.\d+)?/'
   artifacts:
     when: always
     paths:
