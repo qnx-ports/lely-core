@@ -2,6 +2,7 @@
 /cov-int/
 /coverage/
 /doc/html/
+/doc/xml/
 /doc/Doxyfile
 /doc/Doxyfile.ecss
 /doc/doxygen_sqlite3.db
