@@ -94,7 +94,7 @@ TEST(CAN_BufInit, CanBufInit) {
   can_buf_init(buf, memory, BUFFER_SIZE);
 
   CHECK_EQUAL(BUFFER_SIZE - 1, buf->size);
-  CHECK_EQUAL(memory, buf->ptr);
+  POINTERS_EQUAL(memory, buf->ptr);
   CHECK_EQUAL(0, buf->begin);
   CHECK_EQUAL(0, buf->end);
 }
