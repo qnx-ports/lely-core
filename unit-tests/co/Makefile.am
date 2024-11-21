@@ -23,9 +23,9 @@ LELY_OVERRIDE_UTIL_MEMBUF_LIB =
 LELY_OVERRIDE_UTIL_MEMBUF_LDFLGS =
 
 if !PLATFORM_WIN32
-LELY_OVERRIDE_LIBS += $(top_srcdir)/unit-tests/libtest/override/liblely-override-plugin.la
-LELY_OVERRIDE_CO_VAL_LIB += $(top_srcdir)/unit-tests/libtest/override/liblelyco-val-override.la
-LELY_OVERRIDE_UTIL_MEMBUF_LIB += $(top_srcdir)/unit-tests/libtest/override/liblelyutil-membuf-override.la
+LELY_OVERRIDE_LIBS += $(top_builddir)/unit-tests/libtest/override/liblely-override-plugin.la
+LELY_OVERRIDE_CO_VAL_LIB += $(top_builddir)/unit-tests/libtest/override/liblelyco-val-override.la
+LELY_OVERRIDE_UTIL_MEMBUF_LIB += $(top_builddir)/unit-tests/libtest/override/liblelyutil-membuf-override.la
 if !ENABLE_SHARED
 LELY_OVERRIDE_CO_VAL_LDFLGS += -Wl,--wrap=co_val_read
 LELY_OVERRIDE_CO_VAL_LDFLGS += -Wl,--wrap=co_val_write
@@ -192,7 +192,7 @@ unit_test_co_val_LDFLAGS = $(LELY_UNIT_TEST_CO_LDFLGS)
 
 # Compilation flags
 
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/unit-tests
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/unit-tests -I$(top_srcdir)
 AM_CPPFLAGS += -DTEST_SRCDIR=\"${srcdir}\"
 if ENABLE_SHARED
 AM_CPPFLAGS += -DLELY_ENABLE_SHARED=1
