@@ -416,9 +416,6 @@ size_t co_obj_set_val(co_obj_t *obj, co_unsigned8_t subidx, const void *ptr,
  *             default indication function will be used.
  * @param data a pointer to user-specified data (can be NULL). <b>data</b> is
  *             passed as the last parameter to <b>func</b>.
- *
- * @returns 0 on success, or -1 on error. In the latter case, the error code can
- * be obtained with get_errc().
  */
 void co_obj_set_dn_ind(co_obj_t *obj, co_sub_dn_ind_t *ind, void *data);
 
