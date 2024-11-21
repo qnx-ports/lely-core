@@ -1,4 +1,3 @@
-
 lib_LTLIBRARIES =
 
 # Override test plugin
@@ -9,7 +8,7 @@ liblely_override_plugin_src += override-test-plugin.cpp
 
 lib_LTLIBRARIES += liblely-override-plugin.la
 
-liblely_override_plugin_la_CPPFLAGS = -I$(top_srcdir)/include
+liblely_override_plugin_la_CPPFLAGS = -I$(top_srcdir)/include $(CPPUTEST_CFLAGS)
 if ENABLE_SHARED
 liblely_override_plugin_la_CPPFLAGS += -DLELY_ENABLE_SHARED=1
 endif
@@ -29,7 +28,7 @@ liblelyco_val_override_la_LDFLAGS += -Wl,--as-needed
 liblelyco_val_override_la_LIBADD =
 liblelyco_val_override_la_LIBADD += -ldl
 
-liblelyco_val_override_la_CPPFLAGS = -I$(top_srcdir)/include
+liblelyco_val_override_la_CPPFLAGS = -I$(top_srcdir)/include $(CPPUTEST_CFLAGS)
 if ENABLE_SHARED
 liblelyco_val_override_la_CPPFLAGS += -DLELY_ENABLE_SHARED=1
 endif
@@ -49,7 +48,7 @@ liblelyutil_membuf_override_la_LDFLAGS += -Wl,--as-needed
 liblelyutil_membuf_override_la_LIBADD =
 liblelyutil_membuf_override_la_LIBADD += -ldl
 
-liblelyutil_membuf_override_la_CPPFLAGS = -I$(top_srcdir)/include
+liblelyutil_membuf_override_la_CPPFLAGS = -I$(top_srcdir)/include $(CPPUTEST_CFLAGS)
 if ENABLE_SHARED
 liblelyutil_membuf_override_la_CPPFLAGS += -DLELY_ENABLE_SHARED=1
 endif
