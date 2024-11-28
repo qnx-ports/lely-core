@@ -431,6 +431,44 @@ void co_obj_set_dn_ind(co_obj_t *obj, co_sub_dn_ind_t *ind, void *data);
  */
 void co_obj_set_up_ind(co_obj_t *obj, co_sub_up_ind_t *ind, void *data);
 
+/**
+ * Checks if the specified CANopen object is a valid single value of the
+ * specified type.
+ *
+ * @param obj  a pointer to a CANopen object (can be NULL).
+ * @param type the data type of the object.
+ *
+ * @returns <b>true</b> if the specified object is a valid VAR, and
+ *          <b>false</b> if not.
+ */
+bool co_obj_is_var(const co_obj_t *obj, co_unsigned16_t type);
+
+/**
+ * Checks if the specified CANopen object is a valid ARRAY according to CiA 301.
+ * RECORD objects with elements of the same data type are considered to be valid
+ * ARRAY objects.
+ *
+ * @param obj  a pointer to a CANopen object (can be NULL).
+ * @param type the data type of the ARRAY elements.
+ *
+ * @returns <b>true</b> if the specified object is a valid ARRAY, and
+ *          <b>false</b> if not.
+ */
+bool co_obj_is_array(const co_obj_t *obj, co_unsigned16_t type);
+
+/**
+ * Checks if the specified CANopen object is a valid RECORD according to CiA
+ * 301.
+ *
+ * @param obj  a pointer to a CANopen object (can be NULL).
+ * @param type the DEFSTRUCT record type. If <b>type</b> is 0, the record type
+ *             is not checked.
+ *
+ * @returns <b>true</b> if the specified object is a valid ARRAY, and
+ *          <b>false</b> if not.
+*/
+bool co_obj_is_record(const co_obj_t *obj, co_unsigned16_t type);
+
 #if !LELY_NO_MALLOC
 
 /**
@@ -851,6 +889,21 @@ void co_sub_get_dn_ind(
  * @see co_sub_get_dn_ind()
  */
 void co_sub_set_dn_ind(co_sub_t *sub, co_sub_dn_ind_t *ind, void *data);
+
+/**
+ * Checks if the specified CANopen sub-object describes the structure of the
+ * object (containing the sub-object at sub-index 0xFF) by providing the data
+ * type and the object type of the object.
+ *
+ * @param sub  a pointer to a CANopen sub-object.
+ * @param code the object code of the object.
+ * @param type the data type of the object.
+ *
+ * @returns <b>true</b> if the specified object is a valid VAR, and
+ *          <b>false</b> if not.
+ */
+bool co_sub_is_desc(
+		const co_sub_t *sub, co_unsigned8_t code, co_unsigned16_t type);
 
 /**
  * Implements the default behavior when a download indication is received by a

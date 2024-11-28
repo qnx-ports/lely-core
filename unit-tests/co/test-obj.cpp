@@ -1017,6 +1017,323 @@ TEST(CO_Obj, CoObjSetDnInd_NoSub) { co_obj_set_dn_ind(obj, nullptr, nullptr); }
 
 ///@}
 
+/// @name co_obj_is_var()
+///@{
+
+/// \Given N/A
+///
+/// \When calling co_obj_is_var() with NULL pointer and any type
+///
+/// \Then 0 is returned
+TEST(CO_Obj, CoObjIsVar_Null) {
+  CHECK_EQUAL(0u, co_obj_is_var(nullptr, CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an object (co_obj_t) with object code set to anything other
+///        than CO_OBJECT_VAR
+///
+/// \When calling co_obj_is_var() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+TEST(CO_Obj, CoObjIsVar_BadObjCode) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_NULL);
+
+  CHECK_EQUAL(0u, co_obj_is_var(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an object (co_obj_t) without any sub-objects
+///
+/// \When calling co_obj_is_var() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_first_sub()
+TEST(CO_Obj, CoObjIsVar_NoSubs) {
+  CoObjTHolder obj{OBJ_IDX};
+
+  CHECK_EQUAL(0u, co_obj_is_var(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an object (co_obj_t) with first sub-object not at sub-index 0x00
+///
+/// \When calling co_obj_is_var() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_first_sub()
+///       \Calls co_sub_get_subidx()
+TEST(CO_Obj, CoObjIsVar_BadFirstSubIdx) {
+  CoObjTHolder obj{OBJ_IDX};
+  obj.InsertAndSetSub(0x01u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(0u, co_obj_is_var(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an object (co_obj_t) with more than one sub-object
+///
+/// \When calling co_obj_is_var() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_first_sub()
+///       \Calls co_sub_get_subidx()
+///       \Calls co_obj_last_sub()
+TEST(CO_Obj, CoObjIsVar_TooManySubObjects) {
+  CoObjTHolder obj{OBJ_IDX};
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+  obj.InsertAndSetSub(0x01u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(0u, co_obj_is_var(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an object (co_obj_t) with single sub-object at sub-index 0x00
+///
+/// \When calling co_obj_is_var() with a pointer to the object and a type
+///       different then sub-object's type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_first_sub()
+///       \Calls co_sub_get_subidx()
+///       \Calls co_obj_last_sub()
+///       \Calls co_sub_get_type()
+TEST(CO_Obj, CoObjIsVar_DifferentType) {
+  CoObjTHolder obj{OBJ_IDX};
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(0u, co_obj_is_var(obj.Get(), CO_DEFTYPE_INTEGER32));
+}
+
+/// \Given an object (co_obj_t) with single sub-object at sub-index 0x00
+///
+/// \When calling co_obj_is_var() with a pointer to the object and type equal to
+///       the sub-object's type
+///
+/// \Then 1 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_first_sub()
+///       \Calls co_sub_get_subidx()
+///       \Calls co_obj_last_sub()
+///       \Calls co_sub_get_type()
+TEST(CO_Obj, CoObjIsVar_Nominal) {
+  CoObjTHolder obj{OBJ_IDX};
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(1u, co_obj_is_var(obj.Get(), CO_DEFTYPE_UNSIGNED16));
+}
+
+///@}
+
+/// @name co_obj_is_array()
+///@{
+
+/// \Given N/A
+///
+/// \When calling co_obj_is_array() with NULL pointer and any type
+///
+/// \Then 0 is returned
+TEST(CO_Obj, CoObjIsArray_Null) {
+  CHECK_EQUAL(0u, co_obj_is_array(nullptr, CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an object (co_obj_t) with object code set to anything other
+///        than CO_OBJECT_ARRAY or CO_OBJECT_RECORD
+///
+/// \When calling co_obj_is_array() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+TEST(CO_Obj, CoObjIsArray_BadObjCode) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_NULL);
+
+  CHECK_EQUAL(0u, co_obj_is_array(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an ARRAY object without any sub-objects
+///
+/// \When calling co_obj_is_array() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_find_sub()
+TEST(CO_Obj, CoObjIsArray_NoSubs) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_ARRAY);
+
+  CHECK_EQUAL(0u, co_obj_is_array(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an ARRAY object with first sub-object with the wrong data type
+///
+/// \When calling co_obj_is_array() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_find_sub()
+///       \Calls co_sub_get_type()
+TEST(CO_Obj, CoObjIsArray_BadFirstSubType) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_ARRAY);
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(0u, co_obj_is_array(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an ARRAY object with first sub-object with the wrong value
+///
+/// \When calling co_obj_is_array() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_find_sub()
+///       \Calls co_sub_get_type()
+///       \Calls co_sub_get_val_u8()
+TEST(CO_Obj, CoObjIsArray_BadFirstSubValue) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_ARRAY);
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED8, co_unsigned8_t{0xffu});
+
+  CHECK_EQUAL(0u, co_obj_is_array(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an ARRAY object with a value in sub-index 0x00 larger than the total
+///        number of sub-objects
+///
+/// \When calling co_obj_is_array() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_find_sub()
+///       \Calls co_sub_get_type()
+///       \Calls co_sub_get_val_u8()
+///       \Calls co_sub_next()
+///       \Calls co_obj_last_sub()
+///       \Calls co_sub_get_subidx()
+TEST(CO_Obj, CoObjIsArray_FirstSubValueTooLarge) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_ARRAY);
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED8, co_unsigned8_t{0x01u});
+
+  CHECK_EQUAL(0u, co_obj_is_array(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an ARRAY object with no members
+///
+/// \When calling co_obj_is_array() with a pointer to the object and any type
+///
+/// \Then 1 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_find_sub()
+///       \Calls co_sub_get_type()
+///       \Calls co_sub_get_val_u8()
+///       \Calls co_sub_next()
+///       \Calls co_obj_last_sub()
+///       \Calls co_sub_get_subidx()
+TEST(CO_Obj, CoObjIsArray_Empty) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_ARRAY);
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED8, co_unsigned8_t{0xffu});
+
+  CHECK_EQUAL(1u, co_obj_is_array(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an ARRAY object with a gap in the sub-objects
+///
+/// \When calling co_obj_is_array() with a pointer to the object and type equal
+///       to the member's type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_find_sub()
+///       \Calls co_sub_get_type()
+///       \Calls co_sub_get_val_u8()
+///       \Calls co_sub_next()
+///       \Calls co_sub_get_subidx()
+TEST(CO_Obj, CoObjIsArray_MissingSubObject) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_ARRAY);
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED8, co_unsigned8_t{0x02u});
+  obj.InsertAndSetSub(0x02u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(0u, co_obj_is_array(obj.Get(), CO_DEFTYPE_INTEGER16));
+}
+
+/// \Given an ARRAY object with a single member
+///
+/// \When calling co_obj_is_array() with a pointer to the object and type
+///       different from the member's type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_find_sub()
+///       \Calls co_sub_get_type()
+///       \Calls co_sub_get_val_u8()
+///       \Calls co_sub_next()
+///       \Calls co_sub_get_subidx()
+TEST(CO_Obj, CoObjIsArray_BadSubType) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_ARRAY);
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED8, co_unsigned8_t{0x01u});
+  obj.InsertAndSetSub(0x01u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(0u, co_obj_is_array(obj.Get(), CO_DEFTYPE_INTEGER32));
+}
+
+/// \Given an empty ARRAY object with a bad object description at sub-index 0xFF
+///
+/// \When calling co_obj_is_array() with a pointer to the object and any type
+///
+/// \Then 0 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_find_sub()
+///       \Calls co_sub_get_type()
+///       \Calls co_sub_get_val_u8()
+///       \Calls co_sub_next()
+///       \Calls co_sub_get_subidx()
+///       \Calls co_obj_last_sub()
+///       \Calls co_sub_is_desc()
+TEST(CO_Obj, CoObjIsArray_BadDescription) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_ARRAY);
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED8, co_unsigned8_t{0x00u});
+  obj.InsertAndSetSub(0xffu, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+
+  CHECK_EQUAL(0u, co_obj_is_array(obj.Get(), CO_DEFTYPE_INTEGER32));
+}
+
+/// \Given an ARRAY object with single member at sub-index 0x00 and an object
+///        description at sub-index 0xFF
+///
+/// \When calling co_obj_is_array() with a pointer to the object and type equal
+///       to the member's type
+///
+/// \Then 1 is returned
+///       \Calls co_obj_get_code()
+///       \Calls co_obj_find_sub()
+///       \Calls co_sub_get_type()
+///       \Calls co_sub_get_val_u8()
+///       \Calls co_sub_next()
+///       \Calls co_sub_get_subidx()
+///       \Calls co_obj_last_sub()
+///       \Calls co_sub_is_desc()
+///       \Calls co_sub_prev()
+TEST(CO_Obj, CoObjIsArray_Nominal) {
+  CoObjTHolder obj{OBJ_IDX};
+  co_obj_set_code(obj.Get(), CO_OBJECT_ARRAY);
+  obj.InsertAndSetSub(0x00u, CO_DEFTYPE_UNSIGNED8, co_unsigned8_t{1u});
+  obj.InsertAndSetSub(0x01u, CO_DEFTYPE_UNSIGNED16, co_unsigned16_t{42u});
+  obj.InsertAndSetSub(
+      0xffu, CO_DEFTYPE_UNSIGNED32,
+      co_unsigned32_t{(CO_DEFTYPE_UNSIGNED16 << 8) | CO_OBJECT_ARRAY});
+
+  CHECK_EQUAL(1u, co_obj_is_array(obj.Get(), CO_DEFTYPE_UNSIGNED16));
+}
+
+///@}
+
 #if !LELY_NO_CO_OBJ_UPLOAD
 
 /// @name co_obj_set_up_ind()
