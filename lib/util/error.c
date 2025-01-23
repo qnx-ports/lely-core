@@ -1049,7 +1049,7 @@ errno2str_r(int errnum, char *strerrbuf, size_t buflen)
 	}
 #elif _POSIX_C_SOURCE >= 200112L
 	if (strerrbuf) {
-#ifdef _GNU_SOURCE
+#if defined(_GNU_SOURCE) && !defined(__QNX__)
 		return strerror_r(errnum, strerrbuf, buflen);
 #else
 		int errc = strerror_r(errnum, strerrbuf, buflen);
